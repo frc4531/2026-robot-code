@@ -41,9 +41,7 @@ class RobotContainer:
         # The robot's subsystems
         self.drive_subsystem = DriveSubsystem()
         self.vision_subsystem = VisionSubsystem()
-        self.swing_arm_subsystem = SwingArmSubsystem()
         self.intake_subsystem = IntakeSubsystem()
-        self.climber_subsystem = ClimberSubsystem()
 
         # The driver's controller
         self.driver_controller = wpilib.Joystick(OIConstants.kDriverControllerPort)
@@ -59,13 +57,8 @@ class RobotContainer:
         # Configure Auto Chooser
         self.chooser = wpilib.SendableChooser()
         self.do_nothing = "Do Nothing"
-        self.drive_forward = "Drive Forward"
-        self.mid_one_coral = "Middle One Coral"
 
         self.chooser.setDefaultOption("Shoot 1 Only", self.do_nothing)
-        self.chooser.addOption("Drive Forward", self.drive_forward)
-        self.chooser.addOption("Middle One Coral", self.mid_one_coral)
-
 
     def configure_button_bindings(self) -> None:
         """
@@ -73,37 +66,9 @@ class RobotContainer:
         instantiating a :GenericHID or one of its subclasses (Joystick or XboxController),
         and then passing it to a JoystickButton.
         """
-        #commands2.button.JoystickButton(self.operator_controller, 1).whileTrue(
-        #    SwingArmToPosition(self.swing_arm_subsystem,0.4)
-        #)
-
-        # Arm Up
-        commands2.button.JoystickButton(self.operator_controller, 4).onTrue(
-            SwingArmToPosition(self.swing_arm_subsystem, 0.51)
-        )
-        # Stow Algae
-        commands2.button.JoystickButton(self.operator_controller, 2).onTrue(
-            SwingArmToPosition(self.swing_arm_subsystem, 0.605)
-        )
-        # Arm Down
-        commands2.button.JoystickButton(self.operator_controller, 1).onTrue(
-            SwingArmToPosition(self.swing_arm_subsystem, 0.68)
-        )
         # Intake In
         commands2.button.JoystickButton(self.operator_controller, 5).whileTrue(
             IntakeIn(self.intake_subsystem)
-        )
-        # Intake Out
-        commands2.button.JoystickButton(self.operator_controller, 6).whileTrue(
-            IntakeOut(self.intake_subsystem)
-        )
-        # Driver Controller
-        commands2.button.JoystickButton(self.driver_controller, 5).whileTrue(
-            ClimberUp(self.climber_subsystem)
-        )
-        # Intake Out
-        commands2.button.JoystickButton(self.driver_controller, 10).whileTrue(
-            ClimberDown(self.climber_subsystem)
         )
 
     def disable_pid_subsystems(self) -> None:
@@ -111,26 +76,6 @@ class RobotContainer:
         This should be called on robot disable to prevent integral windup."""
 
     def get_autonomous_command(self) -> commands2.command:
-        """Use this to pass the autonomous command to the main {@link Robot} class.
-
-        )
-        commands2.button.JoystickButton(self.operator_controller, 8).onTrue(
-            SwingArmToPosition(self.swing_arm_subsystem, PositionConstants.kCoralThreeSwingArm)
-        )
-        # Level 4 Coral Deposit
-        commands2.button.JoystickButton(self.operator_controller, 7).onTrue(
-            LiftToPosition(self.lift_subsystem, PositionConstants.kCoralFourLift)
-        )
-        commands2.button.JoystickButton(self.operator_controller, 7).onTrue(
-            WristToPosition(self.wrist_subsystem, PositionConstants.kCoralFourWrist)
-        )
-        commands2.button.JoystickButton(self.operator_controller, 7).onTrue(
-            SwingArmToPosition(self.swing_arm_subsystem, PositionConstants.kCoralFourSwingArm)
-        )
-        # Ground Algae
-        commands2.button.JoystickButton(self.operator_controller, 1).onTrue(
-        :returns: the command to run in autonomous
-        """
         # Create config for trajectory
         config = TrajectoryConfig(
             AutoConstants.kMaxSpeedMetersPerSecond,
