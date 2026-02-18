@@ -50,6 +50,8 @@ class RobotContainer:
 
         self.chooser.setDefaultOption("Shoot 1 Only", self.do_nothing)
 
+        self.drive_subsystem.gyro.reset()
+
     def configure_button_bindings(self) -> None:
         """
         Use this method to define your button->command mappings. Buttons can be created by

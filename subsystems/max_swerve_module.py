@@ -1,4 +1,5 @@
-from rev import SparkMax, SparkMaxConfig, SparkFlex, SparkFlexConfig, SparkBase, ClosedLoopConfig
+from rev import SparkMax, SparkMaxConfig, SparkFlex, SparkFlexConfig, SparkBase, ClosedLoopConfig, FeedbackSensor, \
+    ResetMode, PersistMode
 from wpimath.geometry import Rotation2d
 from wpimath.kinematics import SwerveModuleState, SwerveModulePosition
 
@@ -40,8 +41,8 @@ class MAXSwerveModule:
         )
         self.driving_pid_controller = self.driving_spark_flex.getClosedLoopController()
         self.turning_pid_controller = self.turning_spark_max.getClosedLoopController()
-        self.driving_config.closedLoop.setFeedbackSensor(ClosedLoopConfig.FeedbackSensor.kPrimaryEncoder)
-        self.turning_config.closedLoop.setFeedbackSensor(ClosedLoopConfig.FeedbackSensor.kAbsoluteEncoder)
+        self.driving_config.closedLoop.setFeedbackSensor(FeedbackSensor.kPrimaryEncoder)
+        self.turning_config.closedLoop.setFeedbackSensor(FeedbackSensor.kAbsoluteEncoder)
 
         # Apply position and velocity conversion factors for the driving encoder. The
         # native units for position and velocity are rotations and RPM, respectively,
@@ -111,11 +112,11 @@ class MAXSwerveModule:
         # Save the SPARK MAX configurations. If a SPARK MAX browns out during
         # operation, it will maintain the above configurations.
         self.driving_spark_flex.configure(self.driving_config,
-                                          SparkBase.ResetMode.kResetSafeParameters,
-                                          SparkBase.PersistMode.kPersistParameters)
+                                          ResetMode.kResetSafeParameters,
+                                          PersistMode.kPersistParameters)
         self.turning_spark_max.configure(self.turning_config,
-                                         SparkBase.ResetMode.kResetSafeParameters,
-                                         SparkBase.PersistMode.kPersistParameters)
+                                         ResetMode.kResetSafeParameters,
+                                         PersistMode.kPersistParameters)
 
         self.chassis_angular_offset = chassis_angular_offset
         self.desired_state.angle = Rotation2d(self.turning_encoder.getPosition())
