@@ -12,9 +12,11 @@ from wpimath.trajectory import TrajectoryConfig, TrajectoryGenerator
 from commands.drive_command import DriveCommand
 from commands.input_drive import InputDrive
 from commands.intake_in import IntakeIn
+from commands.shooter_out import ShooterOut
 from constants.position_constants import PositionConstants
 from constants.swerve_constants import OIConstants, AutoConstants, DriveConstants
 from subsystems.drive_subsystem import DriveSubsystem
+from subsystems.shooter_subsystem import ShooterSubsystem
 from subsystems.vision_subsystem import VisionSubsystem
 from subsystems.intake_subsystem import IntakeSubsystem
 
@@ -32,6 +34,7 @@ class RobotContainer:
         self.drive_subsystem = DriveSubsystem()
         self.vision_subsystem = VisionSubsystem()
         self.intake_subsystem = IntakeSubsystem()
+        self.shooter_subsystem = ShooterSubsystem()
 
         # The driver's controller
         self.driver_controller = wpilib.Joystick(OIConstants.kDriverControllerPort)
@@ -61,6 +64,10 @@ class RobotContainer:
         # Intake In
         commands2.button.JoystickButton(self.operator_controller, 1).whileTrue(
             IntakeIn(self.intake_subsystem)
+        )
+        # Shooter Out
+        commands2.button.JoystickButton(self.operator_controller, 3).whileTrue(
+            ShooterOut(self.shooter_subsystem)
         )
 
     def disable_pid_subsystems(self) -> None:
