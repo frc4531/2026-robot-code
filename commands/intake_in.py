@@ -1,5 +1,4 @@
 import commands2
-import ntcore
 
 from subsystems.intake_subsystem import IntakeSubsystem
 
@@ -12,19 +11,8 @@ class IntakeIn(commands2.Command):
         self.intake_sub = intake_sub
         self.addRequirements(self.intake_sub)
 
-        self.speed = -0.2
-        self.arm_state = "0"
-
     def execute(self) -> None:
-        self.arm_state = ntcore.NetworkTableInstance.getDefault().getTable("arm_table").getStringTopic(
-            "arm_state").subscribe("up").get()
-
-        if self.arm_state == "up":
-            self.speed = -0.8
-        elif self.arm_state == "down":
-            self.speed = 0.4
-
-        self.intake_sub.set_intake_speed(self.speed)
+        self.intake_sub.set_intake_speed(0.9)
 
     def isFinished(self) -> bool:
         return False

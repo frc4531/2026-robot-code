@@ -59,7 +59,7 @@ class RobotContainer:
         and then passing it to a JoystickButton.
         """
         # Intake In
-        commands2.button.JoystickButton(self.operator_controller, 5).whileTrue(
+        commands2.button.JoystickButton(self.operator_controller, 1).whileTrue(
             IntakeIn(self.intake_subsystem)
         )
 
