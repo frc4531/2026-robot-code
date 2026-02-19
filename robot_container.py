@@ -10,13 +10,18 @@ from wpimath.geometry import Pose2d, Rotation2d, Translation2d
 from wpimath.trajectory import TrajectoryConfig, TrajectoryGenerator
 
 from commands.drive_command import DriveCommand
+from commands.hood_up import HoodUp
+from commands.hopper_out import HopperOut
 from commands.input_drive import InputDrive
 from commands.intake_in import IntakeIn
 from commands.shooter_out import ShooterOut
+from commands.turret_left import TurretLeft
 from constants.position_constants import PositionConstants
 from constants.swerve_constants import OIConstants, AutoConstants, DriveConstants
 from subsystems.drive_subsystem import DriveSubsystem
+from subsystems.hopper_subsystem import HopperSubsystem
 from subsystems.shooter_subsystem import ShooterSubsystem
+from subsystems.turret_subsystem import TurretSubsystem
 from subsystems.vision_subsystem import VisionSubsystem
 from subsystems.intake_subsystem import IntakeSubsystem
 
@@ -35,6 +40,8 @@ class RobotContainer:
         self.vision_subsystem = VisionSubsystem()
         self.intake_subsystem = IntakeSubsystem()
         self.shooter_subsystem = ShooterSubsystem()
+        self.hopper_subsystem = HopperSubsystem()
+        self.turret_subsystem = TurretSubsystem()
 
         # The driver's controller
         self.driver_controller = wpilib.Joystick(OIConstants.kDriverControllerPort)
@@ -68,6 +75,18 @@ class RobotContainer:
         # Shooter Out
         commands2.button.JoystickButton(self.operator_controller, 3).whileTrue(
             ShooterOut(self.shooter_subsystem)
+        )
+        # Hopper Out
+        commands2.button.JoystickButton(self.operator_controller, 5).whileTrue(
+            HopperOut(self.hopper_subsystem)
+        )
+        # Turret Left
+        commands2.button.JoystickButton(self.operator_controller, 7).whileTrue(
+            TurretLeft(self.turret_subsystem)
+        )
+        # Hood Up
+        commands2.button.JoystickButton(self.operator_controller, 12).whileTrue(
+            HoodUp(self.turret_subsystem)
         )
 
     def disable_pid_subsystems(self) -> None:
