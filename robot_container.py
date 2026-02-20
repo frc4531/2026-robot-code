@@ -10,6 +10,8 @@ from wpimath.geometry import Pose2d, Rotation2d, Translation2d
 from wpimath.trajectory import TrajectoryConfig, TrajectoryGenerator
 
 from commands.drive_command import DriveCommand
+from commands.extension_to_position import ExtensionToPosition
+from commands.hood_down import HoodDown
 from commands.hood_up import HoodUp
 from commands.hopper_out import HopperOut
 from commands.input_drive import InputDrive
@@ -87,6 +89,20 @@ class RobotContainer:
         # Hood Up
         commands2.button.JoystickButton(self.operator_controller, 12).whileTrue(
             HoodUp(self.turret_subsystem)
+        )
+        # Hood Down
+        commands2.button.JoystickButton(self.operator_controller, 13).whileTrue(
+            HoodDown(self.turret_subsystem)
+        )
+
+        # Extension to one position
+        commands2.button.JoystickButton(self.operator_controller, 9).whileTrue(
+            ExtensionToPosition(self.hopper_subsystem, 0.47)
+        )
+
+        # Extension to another position
+        commands2.button.JoystickButton(self.operator_controller, 10).whileTrue(
+            ExtensionToPosition(self.hopper_subsystem, 0.63)
         )
 
     def disable_pid_subsystems(self) -> None:
