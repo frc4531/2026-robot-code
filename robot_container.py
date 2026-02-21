@@ -96,13 +96,17 @@ class RobotContainer:
             HoodDown(self.turret_subsystem)
         )
 
-        # Hood to one position
+        # Turret to one position
         commands2.button.JoystickButton(self.operator_controller, 9).whileTrue(
-            TurretToPosition(self.turret_subsystem, self.vision_subsystem, -25)
+            TurretToPosition(self.turret_subsystem, self.vision_subsystem, -45)
         )
-        # Hood Down
+        # Turret to another position
         commands2.button.JoystickButton(self.operator_controller, 10).whileTrue(
             TurretToPosition(self.turret_subsystem, self.vision_subsystem, 0)
+        )
+        # Turret to another position
+        commands2.button.JoystickButton(self.operator_controller, 11).whileTrue(
+            TurretToPosition(self.turret_subsystem, self.vision_subsystem, -135)
         )
 
         # # Extension to one position

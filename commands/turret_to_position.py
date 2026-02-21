@@ -10,13 +10,13 @@ class TurretToPosition(commands2.PIDCommand):
 
     def __init__(self, turret_sub: TurretSubsystem, vision_sub: VisionSubsystem, target_position) -> None:
         super().__init__(
-            wpimath.controller.PIDController(1.25, 0, 0),
+            wpimath.controller.PIDController(0.0065, 0.015, 0),
             # Close loop on absolute encoder
             lambda: vision_sub.turret_angle,
             # Set reference to target
             target_position,
             # Pipe output to turn arm
-            lambda output: turret_sub.set_turret_speed(output),
+            lambda output: turret_sub.set_turret_speed(-output),
             # Require the arm
             turret_sub, vision_sub
         )
