@@ -12,11 +12,13 @@ from wpimath.trajectory import TrajectoryConfig, TrajectoryGenerator
 from commands.drive_command import DriveCommand
 from commands.extension_to_position import ExtensionToPosition
 from commands.hood_down import HoodDown
+from commands.hood_to_positon import HoodToPosition
 from commands.hood_up import HoodUp
 from commands.hopper_out import HopperOut
 from commands.input_drive import InputDrive
 from commands.intake_in import IntakeIn
 from commands.shooter_out import ShooterOut
+from commands.shooter_to_velocity import ShooterToVelocity
 from commands.turret_left import TurretLeft
 from commands.turret_to_position import TurretToPosition
 from constants.position_constants import PositionConstants
@@ -77,7 +79,11 @@ class RobotContainer:
         )
         # Shooter Out
         commands2.button.JoystickButton(self.operator_controller, 3).whileTrue(
-            ShooterOut(self.shooter_subsystem)
+            ShooterToVelocity(self.shooter_subsystem, 5000)
+        )
+        # Shooter Out
+        commands2.button.JoystickButton(self.operator_controller, 4).whileTrue(
+            ShooterToVelocity(self.shooter_subsystem, 2000)
         )
         # Hopper Out
         commands2.button.JoystickButton(self.operator_controller, 5).whileTrue(
@@ -89,11 +95,11 @@ class RobotContainer:
         )
         # Hood Up
         commands2.button.JoystickButton(self.operator_controller, 12).whileTrue(
-            HoodUp(self.turret_subsystem)
+            HoodToPosition(self.turret_subsystem, 5)
         )
         # Hood Down
         commands2.button.JoystickButton(self.operator_controller, 13).whileTrue(
-            HoodDown(self.turret_subsystem)
+            HoodToPosition(self.turret_subsystem, 0.5)
         )
 
         # Turret to one position

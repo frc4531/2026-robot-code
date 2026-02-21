@@ -5,7 +5,7 @@ from rev import SparkFlexConfig, SparkBase
 from subsystems.turret_subsystem import TurretSubsystem
 
 
-class LiftToPos2(commands2.Command):
+class HoodToPosition(commands2.Command):
 
     def __init__(self, turret_sub: TurretSubsystem, target_position) -> None:
         super().__init__()
