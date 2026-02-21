@@ -13,6 +13,7 @@ class VisionSubsystem(SubsystemBase):
         self.inst = ntcore.NetworkTableInstance.getDefault()
         left_table = self.inst.getTable("limelight-left")
         right_table = self.inst.getTable("limelight-right")
+        turret_table = self.inst.getTable("limelight-turret")
         vision_table = self.inst.getTable("vision_table")
 
         self.left_x_sub = left_table.getDoubleTopic("tx").subscribe(0.0)
@@ -29,6 +30,8 @@ class VisionSubsystem(SubsystemBase):
         self.right_id_sub = right_table.getDoubleTopic("tid").subscribe(0)
         self.right_blue_pos_sub = right_table.getFloatArrayTopic("botpose_orb_wpiblue").subscribe([0.0, 0.0])
 
+        self.turret_imu_sub = turret_table.getFloatArrayTopic("imu").subscribe([0.0, 0.0])
+
         self.left_x_entry = 0
         self.left_y_entry = 0
         self.left_a_entry = 0
@@ -43,6 +46,8 @@ class VisionSubsystem(SubsystemBase):
         self.right_id_entry = 0
         self.right_blue_pos = 0
 
+        self.turret_angle = 0
+
         self.avg_y_cord = 0
         self.avg_x_cord = 0
         self.avg_v_entry = 0
@@ -52,6 +57,8 @@ class VisionSubsystem(SubsystemBase):
         self.avg_x_cord_entry = vision_table.getFloatTopic("avg_x_cord").publish()
         self.avg_v_entry_publish = vision_table.getFloatTopic("avg_v_entry").publish()
         self.avg_id_entry_publish = vision_table.getFloatTopic("avg_id_entry").publish()
+
+        self.turret_angle_publish = vision_table.getFloatTopic("target_angle").publish()
 
     def periodic(self):
         self.left_x_entry = self.left_x_sub.get()
@@ -67,6 +74,10 @@ class VisionSubsystem(SubsystemBase):
         self.right_v_entry = self.right_v_sub.get()
         self.right_id_entry = self.right_id_sub.get()
         self.right_blue_pos = self.right_blue_pos_sub.get()
+
+        self.turret_angle_publish.set(self.turret_angle)
+
+        self.turret_angle = self.turret_imu_sub.get()[0]
 
         # Avg Info Estimator
         if self.left_v_entry == 1 and self.right_v_entry == 1:

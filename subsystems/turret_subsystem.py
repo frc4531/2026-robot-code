@@ -2,6 +2,7 @@ import ntcore
 import rev
 import wpilib
 from commands2 import SubsystemBase
+from rev import PersistMode, ResetMode
 
 
 class TurretSubsystem(SubsystemBase):
@@ -31,20 +32,21 @@ class TurretSubsystem(SubsystemBase):
         self.hood_pid_controller = self.hood_motor.getClosedLoopController()
         self.turret_pid_controller = self.hood_motor.getClosedLoopController()
 
-        self.hood_config.closedLoop.setFeedbackSensor(rev.ClosedLoopConfig.setFeedbackSensor(self.hood_motor.))
+        self.khP = 1
+        self.khI = 0
+        self.khD = 0
+        self.min_speed = -0.5
+        self.max_speed = 0.5
 
-        self.kP = 22.5
-        self.kI = 0
-        self.kD = 0
-        self.kF = 10 / 6784
-        self.min_speed = -0.00005
-        self.max_speed = 0.9
+        self.hood_config.closedLoop.P(self.khP).I(self.khI).D(self.khD)
+        self.hood_config.closedLoop.outputRange(self.min_speed, self.max_speed)
 
-        self.left_config.closedLoop.P(self.kP)
-        self.left_config.closedLoop.I(self.kI)
-        self.left_config.closedLoop.D(self.kD)
-        self.left_config.closedLoop.velocityFF(self.kF)
-        self.left_config.closedLoop.outputRange(self.min_speed, self.max_speed)
+        self.hood_motor.configure(self.hood_config,
+                                       ResetMode.kResetSafeParameters,
+                                       PersistMode.kPersistParameters)
+        self.turret_motor.configure(self.turret_config,
+                                        ResetMode.kResetSafeParameters,
+                                        PersistMode.kPersistParameters)
 
     def periodic(self):
         self.hood_position_entry.set(self.get_hood_position())

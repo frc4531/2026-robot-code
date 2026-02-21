@@ -18,6 +18,7 @@ from commands.input_drive import InputDrive
 from commands.intake_in import IntakeIn
 from commands.shooter_out import ShooterOut
 from commands.turret_left import TurretLeft
+from commands.turret_to_position import TurretToPosition
 from constants.position_constants import PositionConstants
 from constants.swerve_constants import OIConstants, AutoConstants, DriveConstants
 from subsystems.drive_subsystem import DriveSubsystem
@@ -95,15 +96,24 @@ class RobotContainer:
             HoodDown(self.turret_subsystem)
         )
 
-        # Extension to one position
+        # Hood to one position
         commands2.button.JoystickButton(self.operator_controller, 9).whileTrue(
-            ExtensionToPosition(self.hopper_subsystem, 0.47)
+            TurretToPosition(self.turret_subsystem, self.vision_subsystem, -25)
+        )
+        # Hood Down
+        commands2.button.JoystickButton(self.operator_controller, 10).whileTrue(
+            TurretToPosition(self.turret_subsystem, self.vision_subsystem, 0)
         )
 
-        # Extension to another position
-        commands2.button.JoystickButton(self.operator_controller, 10).whileTrue(
-            ExtensionToPosition(self.hopper_subsystem, 0.63)
-        )
+        # # Extension to one position
+        # commands2.button.JoystickButton(self.operator_controller, 9).whileTrue(
+        #     ExtensionToPosition(self.hopper_subsystem, 0.47)
+        # )
+        #
+        # # Extension to another position
+        # commands2.button.JoystickButton(self.operator_controller, 10).whileTrue(
+        #     ExtensionToPosition(self.hopper_subsystem, 0.63)
+        # )
 
     def disable_pid_subsystems(self) -> None:
         """Disables all ProfiledPIDSubsystem and PIDSubsystem instances.
