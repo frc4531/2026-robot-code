@@ -23,8 +23,8 @@ class ShooterSubsystem(SubsystemBase):
 
         self.shooter_pid_controller = self.left_shooter_motor.getClosedLoopController()
 
-        self.ksP =  0.1
-        self.ksI = 1e-4
+        self.ksP =  0.08
+        self.ksI = 8e-5
         self.ksD = 0
         self.ksIz = 0
         self.ksFF = 0

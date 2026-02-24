@@ -52,10 +52,14 @@ class TurretSubsystem(SubsystemBase):
 
         self.hood_position_entry = hopper_table.getDoubleTopic("hood_position").publish()
         self.turret_position_entry = hopper_table.getDoubleTopic("turret_position").publish()
+        self.turret_state_entry = hopper_table.getStringTopic("turret_state").publish()
+
+        self.turret_state = "null"
 
     def periodic(self):
         self.hood_position_entry.set(self.get_hood_position())
         self.turret_position_entry.set(self.get_turret_position())
+        self.turret_state_entry.set(self.turret_state)
 
     def get_hood_position(self):
         return self.hood_encoder.getPosition()
@@ -72,10 +76,13 @@ class TurretSubsystem(SubsystemBase):
     def set_turret_speed(self, speed):
         if speed > 0 and self.get_starting_limit_switch():
             self.turret_motor.set(speed)
+            self.turret_state = "over_extending"
         elif speed < 0 and self.get_ending_limit_switch():
             self.turret_motor.set(speed)
+            self.turret_state = "over_extending"
         else:
             self.turret_motor.set(0)
+            self.turret_state = "is_good"
 
     def set_hood_speed(self, speed):
         self.hood_motor.set(speed)
