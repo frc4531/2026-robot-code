@@ -3,6 +3,7 @@ import wpilib
 
 from networktables import NetworkTables
 from commands2 import SubsystemBase
+from wpimath.geometry import Rotation2d
 
 
 class VisionSubsystem(SubsystemBase):
@@ -58,8 +59,7 @@ class VisionSubsystem(SubsystemBase):
         self.avg_v_entry_publish = vision_table.getFloatTopic("avg_v_entry").publish()
         self.avg_id_entry_publish = vision_table.getFloatTopic("avg_id_entry").publish()
 
-        self.turret_angle_publish = vision_table.getFloatTopic("target_angle").publish()
-        self.corrected_turret_angle_publish = vision_table.getFloatTopic("corrected_turret_angle").publish()
+        self.turret_angle_publish = vision_table.getFloatTopic("turret_angle").publish()
 
     def periodic(self):
         self.left_x_entry = self.left_x_sub.get()
@@ -77,7 +77,6 @@ class VisionSubsystem(SubsystemBase):
         self.right_blue_pos = self.right_blue_pos_sub.get()
 
         self.turret_angle_publish.set(self.turret_angle)
-        self.corrected_turret_angle_publish.set(self.get_corrected_turret_angle())
 
         self.turret_angle = self.turret_imu_sub.get()[0]
 
@@ -107,11 +106,3 @@ class VisionSubsystem(SubsystemBase):
         self.avg_x_cord_entry.set(self.avg_x_cord)
         self.avg_v_entry_publish.set(self.avg_v_entry)
         self.avg_id_entry_publish.set(self.avg_id_entry)
-
-    def get_corrected_turret_angle(self):
-        if self.turret_angle < 0:
-            return self.turret_angle
-        elif self.turret_angle > 0:
-            return self.turret_angle - 360
-        else:
-            return self.turret_angle

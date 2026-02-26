@@ -20,6 +20,7 @@ from commands.intake_in import IntakeIn
 from commands.shooter_out import ShooterOut
 from commands.shooter_to_velocity import ShooterToVelocity
 from commands.turret_left import TurretLeft
+from commands.turret_right import TurretRight
 from commands.turret_to_position import TurretToPosition
 from constants.position_constants import PositionConstants
 from constants.swerve_constants import OIConstants, AutoConstants, DriveConstants
@@ -93,26 +94,35 @@ class RobotContainer:
         commands2.button.JoystickButton(self.operator_controller, 7).whileTrue(
             TurretLeft(self.turret_subsystem)
         )
-        # Hood Up
-        commands2.button.JoystickButton(self.operator_controller, 12).whileTrue(
-            HoodToPosition(self.turret_subsystem, 5)
-        )
-        # Hood Down
-        commands2.button.JoystickButton(self.operator_controller, 13).whileTrue(
-            HoodToPosition(self.turret_subsystem, 0.5)
-        )
+        # # Hood Up
+        # commands2.button.JoystickButton(self.operator_controller, 12).whileTrue(
+        #     HoodToPosition(self.turret_subsystem, 5)
+        # )
+        # # Hood Down
+        # commands2.button.JoystickButton(self.operator_controller, 13).whileTrue(
+        #     HoodToPosition(self.turret_subsystem, 0.5)
+        # )
 
         # Turret to one position
         commands2.button.JoystickButton(self.operator_controller, 9).whileTrue(
-            TurretToPosition(self.turret_subsystem, self.vision_subsystem, -45)
+            TurretToPosition(self.turret_subsystem, self.vision_subsystem, 135)
         )
         # Turret to another position
         commands2.button.JoystickButton(self.operator_controller, 10).whileTrue(
-            TurretToPosition(self.turret_subsystem, self.vision_subsystem, 0)
+            TurretToPosition(self.turret_subsystem, self.vision_subsystem, 180)
         )
         # Turret to another position
         commands2.button.JoystickButton(self.operator_controller, 11).whileTrue(
-            TurretToPosition(self.turret_subsystem, self.vision_subsystem, -135)
+            TurretToPosition(self.turret_subsystem, self.vision_subsystem, 45)
+        )
+
+        # Manual Turret
+        commands2.button.JoystickButton(self.operator_controller, 12).whileTrue(
+            TurretLeft(self.turret_subsystem)
+        )
+        # Manual Turret
+        commands2.button.JoystickButton(self.operator_controller, 13).whileTrue(
+            TurretRight(self.turret_subsystem)
         )
 
         # # Extension to one position

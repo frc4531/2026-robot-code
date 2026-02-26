@@ -35,7 +35,12 @@ class TurretSubsystem(SubsystemBase):
         self.hood_config.closedLoop.P(self.khP).I(self.khI).D(self.khD)
         self.hood_config.closedLoop.outputRange(self.min_speed, self.max_speed)
 
+        self.hood_config.setIdleMode(rev.SparkBaseConfig.IdleMode.kBrake)
+
         self.hood_config.inverted(True)
+
+        #Start Turret Motor Config
+        self.turret_config.setIdleMode(rev.SparkBaseConfig.IdleMode.kBrake)
 
         self.hood_motor.configure(self.hood_config,
                                        ResetMode.kResetSafeParameters,
@@ -48,11 +53,18 @@ class TurretSubsystem(SubsystemBase):
         self.ending_limit_switch = wpilib.DigitalInput(1)
 
         nt_instance = ntcore.NetworkTableInstance.getDefault()
-        hopper_table = nt_instance.getTable("turret_table")
+        turret_table = nt_instance.getTable("turret_table")
 
-        self.hood_position_entry = hopper_table.getDoubleTopic("hood_position").publish()
-        self.turret_position_entry = hopper_table.getDoubleTopic("turret_position").publish()
-        self.turret_state_entry = hopper_table.getStringTopic("turret_state").publish()
+        self.hood_position_entry = turret_table.getDoubleTopic("hood_position").publish()
+
+        self.turret_position_entry = turret_table.getDoubleTopic("turret_position").publish()
+        self.turret_state_entry = turret_table.getStringTopic("turret_state").publish()
+        self.turret_velocity_entry = turret_table.getDoubleTopic("turret_velocity").publish()
+        self.turret_pid_entry = turret_table.getDoubleTopic("turret_pid_output").publish()
+
+        self.starting_limit_switch_entry = turret_table.getBooleanTopic("starting_limit_switch_state").publish()
+        self.ending_limit_switch_entry = turret_table.getBooleanTopic("ending_limit_switch_state").publish()
+
 
         self.turret_state = "null"
 
@@ -60,12 +72,18 @@ class TurretSubsystem(SubsystemBase):
         self.hood_position_entry.set(self.get_hood_position())
         self.turret_position_entry.set(self.get_turret_position())
         self.turret_state_entry.set(self.turret_state)
+        self.starting_limit_switch_entry.set(self.get_starting_limit_switch())
+        self.ending_limit_switch_entry.set(self.get_ending_limit_switch())
+        self.turret_velocity_entry.set(self.get_turret_velocity())
 
     def get_hood_position(self):
         return self.hood_encoder.getPosition()
 
     def get_turret_position(self):
         return self.turret_encoder.getPosition()
+
+    def get_turret_velocity(self):
+        return self.turret_encoder.getVelocity()
 
     def get_starting_limit_switch(self):
         return self.starting_limit_switch.get()
@@ -74,10 +92,10 @@ class TurretSubsystem(SubsystemBase):
         return self.ending_limit_switch.get()
 
     def set_turret_speed(self, speed):
-        if speed > 0 and self.get_starting_limit_switch():
+        if speed < 0 and self.get_starting_limit_switch() and self.get_turret_position() >= 0:
             self.turret_motor.set(speed)
             self.turret_state = "over_extending"
-        elif speed < 0 and self.get_ending_limit_switch():
+        elif speed > 0 and self.get_ending_limit_switch() and self.get_turret_position() <= 183:
             self.turret_motor.set(speed)
             self.turret_state = "over_extending"
         else:
