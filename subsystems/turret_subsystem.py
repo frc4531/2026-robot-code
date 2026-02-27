@@ -24,23 +24,35 @@ class TurretSubsystem(SubsystemBase):
         self.turret_config = rev.SparkMaxConfig()
 
         self.hood_pid_controller = self.hood_motor.getClosedLoopController()
-        self.turret_pid_controller = self.hood_motor.getClosedLoopController()
 
         self.khP = 0.5
         self.khI = 0
         self.khD = 0
-        self.min_speed = -0.5
-        self.max_speed = 0.5
+        self.hood_min_speed = -0.5
+        self.hood_max_speed = 0.5
 
         self.hood_config.closedLoop.P(self.khP).I(self.khI).D(self.khD)
-        self.hood_config.closedLoop.outputRange(self.min_speed, self.max_speed)
+        self.hood_config.closedLoop.outputRange(self.hood_min_speed, self.hood_max_speed)
 
         self.hood_config.setIdleMode(rev.SparkBaseConfig.IdleMode.kBrake)
 
         self.hood_config.inverted(True)
 
         #Start Turret Motor Config
+        self.turret_pid_controller = self.turret_motor.getClosedLoopController()
+
+        self.ktP = 0.04
+        self.ktI = 0
+        self.ktD = 0
+        self.turret_min_speed = -1
+        self.turret_max_speed = 1
+
+        self.turret_config.closedLoop.P(self.ktP).I(self.ktI).D(self.ktD)
+        self.turret_config.closedLoop.outputRange(self.turret_min_speed, self.turret_max_speed)
+
         self.turret_config.setIdleMode(rev.SparkBaseConfig.IdleMode.kBrake)
+
+
 
         self.hood_motor.configure(self.hood_config,
                                        ResetMode.kResetSafeParameters,

@@ -79,8 +79,8 @@ class RobotContainer:
             IntakeIn(self.intake_subsystem)
         )
         # Shooter Out
-        commands2.button.JoystickButton(self.operator_controller, 3).whileTrue(
-            ShooterToVelocity(self.shooter_subsystem, 5000)
+        commands2.button.JoystickButton(self.operator_controller, 3).toggleOnTrue(
+            ShooterToVelocity(self.shooter_subsystem, 6500)
         )
         # Shooter Out
         commands2.button.JoystickButton(self.operator_controller, 4).whileTrue(
@@ -105,15 +105,15 @@ class RobotContainer:
 
         # Turret to one position
         commands2.button.JoystickButton(self.operator_controller, 9).whileTrue(
-            TurretToPosition(self.turret_subsystem, self.vision_subsystem, 135)
+            TurretToPosition(self.turret_subsystem, self.vision_subsystem, -90)
         )
         # Turret to another position
         commands2.button.JoystickButton(self.operator_controller, 10).whileTrue(
-            TurretToPosition(self.turret_subsystem, self.vision_subsystem, 180)
+            TurretToPosition(self.turret_subsystem, self.vision_subsystem, -180)
         )
         # Turret to another position
         commands2.button.JoystickButton(self.operator_controller, 11).whileTrue(
-            TurretToPosition(self.turret_subsystem, self.vision_subsystem, 45)
+            TurretToPosition(self.turret_subsystem, self.vision_subsystem, -225)
         )
 
         # Manual Turret

@@ -1,30 +1,45 @@
 import commands2
-import wpilib
-import wpimath.controller
+import rev
+from rev import SparkFlexConfig, SparkBase
 
 from subsystems.turret_subsystem import TurretSubsystem
+from wpimath.controller import PIDController
+
+import ntcore
+
 from subsystems.vision_subsystem import VisionSubsystem
 
 
-class TurretToPosition(commands2.PIDCommand):
+class TurretToPosition(commands2.Command):
 
     def __init__(self, turret_sub: TurretSubsystem, vision_sub: VisionSubsystem, target_position) -> None:
-        super().__init__(
-            wpimath.controller.PIDController(0.01, 0, 0),
-            # Close loop on absolute encoder
-            lambda: vision_sub.turret_angle,
-            # Set reference to target
-            target_position,
-            # Pipe output to turn arm
-            lambda output: self.set_turret_pid_entry(output),
-            # Require the arm
-            turret_sub, vision_sub
-        )
-        self.turret_sub = turret_sub
+        super().__init__()
 
-    def set_turret_pid_entry(self, output):
-        self.turret_sub.turret_pid_entry.set(output)
-        self.turret_sub.set_turret_speed(output)
+        self.target_position = target_position
+        self.vision_sub = vision_sub
+
+        self.turret_sub = turret_sub
+        self.addRequirements(self.turret_sub, self.vision_sub)
+
+        self.turret_pid_controller = PIDController(0.001, 0, 0)
+
+        nt_instance = ntcore.NetworkTableInstance.getDefault()
+        turret_table = nt_instance.getTable("turret_table")
+
+        self.current_relative_output_position_entry = turret_table.getDoubleTopic("cur_rel_angle").publish()
+        self.turret_pid_output_entry = turret_table.getDoubleTopic("turret_pid_output").publish()
+
+    def execute(self) -> None:
+        relative_angle = self.vision_sub.get_relative_angle(self.target_position)
+        self.current_relative_output_position_entry.set(relative_angle)
+
+        if 0 <= relative_angle <= 270:
+            target_encoder_position = (relative_angle/270) * 180
+
+            self.turret_sub.turret_pid_controller.setReference(target_encoder_position, rev.SparkBase.ControlType.kPosition)
 
     def isFinished(self) -> bool:
         return False
+
+    def end(self, interrupted: bool) -> None:
+        self.turret_sub.set_turret_speed(0)

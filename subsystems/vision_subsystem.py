@@ -60,6 +60,12 @@ class VisionSubsystem(SubsystemBase):
         self.avg_id_entry_publish = vision_table.getFloatTopic("avg_id_entry").publish()
 
         self.turret_angle_publish = vision_table.getFloatTopic("turret_angle").publish()
+        self.corrected_turret_angle_entry = vision_table.getFloatTopic("corrected_turret_angle").publish()
+
+        self.drive_heading = 0
+
+        self.drive_table = self.inst.getTable("drive_table")
+        self.drive_heading_entry = self.drive_table.getFloatTopic("drive_train_heading").subscribe(0.0)
 
     def periodic(self):
         self.left_x_entry = self.left_x_sub.get()
@@ -79,6 +85,9 @@ class VisionSubsystem(SubsystemBase):
         self.turret_angle_publish.set(self.turret_angle)
 
         self.turret_angle = self.turret_imu_sub.get()[0]
+        self.corrected_turret_angle_entry.set(self.get_relative_angle(-90))
+
+        self.drive_heading = self.drive_heading_entry.get()
 
         # Avg Info Estimator
         if self.left_v_entry == 1 and self.right_v_entry == 1:
@@ -106,3 +115,46 @@ class VisionSubsystem(SubsystemBase):
         self.avg_x_cord_entry.set(self.avg_x_cord)
         self.avg_v_entry_publish.set(self.avg_v_entry)
         self.avg_id_entry_publish.set(self.avg_id_entry)
+
+    def get_corrected_turret_angle(self):
+        turret_rotation = -self.turret_angle
+        drive_rotation = self.drive_heading
+
+        if turret_rotation < 0:
+            turret_rotation_adjusted = turret_rotation + 360
+        else:
+            turret_rotation_adjusted = turret_rotation
+
+        if drive_rotation < 0:
+            drive_rotation_adjusted = drive_rotation + 360
+        else:
+            drive_rotation_adjusted = drive_rotation
+
+        total_turret_adjusted = turret_rotation_adjusted - drive_rotation_adjusted
+
+        if total_turret_adjusted < 0:
+            return total_turret_adjusted + 360
+        else:
+            return total_turret_adjusted
+
+    def get_relative_angle(self, angle):
+        turret_rotation = -angle
+        drive_rotation = self.drive_heading
+
+        if turret_rotation < 0:
+            turret_rotation_adjusted = turret_rotation + 360
+        else:
+            turret_rotation_adjusted = turret_rotation
+
+        if drive_rotation < 0:
+            drive_rotation_adjusted = drive_rotation + 360
+        else:
+            drive_rotation_adjusted = drive_rotation
+
+        total_turret_adjusted = turret_rotation_adjusted - drive_rotation_adjusted
+
+        if total_turret_adjusted < 0:
+            return total_turret_adjusted + 360
+        else:
+            return total_turret_adjusted
+
