@@ -105,7 +105,7 @@ class ModuleConstants:
     kDrivingP = 0.04
     kDrivingI = 0
     kDrivingD = 0
-    kDrivingFF = 1 / kDriveWheelFreeSpeedRps
+    kDrivingFF = 12.0 / kDriveWheelFreeSpeedRps
     kDrivingMinOutput = -1
     kDrivingMaxOutput = 1
 

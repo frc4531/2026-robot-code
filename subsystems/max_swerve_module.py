@@ -85,7 +85,7 @@ class MAXSwerveModule:
         self.driving_config.closedLoop.P(ModuleConstants.kDrivingP)
         self.driving_config.closedLoop.I(ModuleConstants.kDrivingI)
         self.driving_config.closedLoop.D(ModuleConstants.kDrivingD)
-        self.driving_config.closedLoop.velocityFF(ModuleConstants.kDrivingFF)
+        self.driving_config.closedLoop.feedForward.kV(ModuleConstants.kDrivingFF)
         self.driving_config.closedLoop.outputRange(
             ModuleConstants.kDrivingMinOutput, ModuleConstants.kDrivingMaxOutput
         )
@@ -95,7 +95,6 @@ class MAXSwerveModule:
         self.turning_config.closedLoop.P(ModuleConstants.kTurningP)
         self.turning_config.closedLoop.I(ModuleConstants.kTurningI)
         self.turning_config.closedLoop.D(ModuleConstants.kTurningD)
-        self.turning_config.closedLoop.velocityFF(ModuleConstants.kTurningFF)
         self.turning_config.closedLoop.outputRange(
             ModuleConstants.kTurningMinOutput, ModuleConstants.kTurningMaxOutput
         )
