@@ -90,18 +90,14 @@ class RobotContainer:
         commands2.button.JoystickButton(self.operator_controller, 5).whileTrue(
             HopperOut(self.hopper_subsystem)
         )
-        # Turret Left
+        # Hood Up
         commands2.button.JoystickButton(self.operator_controller, 7).whileTrue(
-            TurretLeft(self.turret_subsystem)
+            HoodToPosition(self.turret_subsystem, 5)
         )
-        # # Hood Up
-        # commands2.button.JoystickButton(self.operator_controller, 12).whileTrue(
-        #     HoodToPosition(self.turret_subsystem, 5)
-        # )
-        # # Hood Down
-        # commands2.button.JoystickButton(self.operator_controller, 13).whileTrue(
-        #     HoodToPosition(self.turret_subsystem, 0.5)
-        # )
+        # Hood Down
+        commands2.button.JoystickButton(self.operator_controller, 8).whileTrue(
+            HoodToPosition(self.turret_subsystem, 0.5)
+        )
 
         # Turret to one position
         commands2.button.JoystickButton(self.operator_controller, 9).whileTrue(

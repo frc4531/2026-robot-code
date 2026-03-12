@@ -31,6 +31,13 @@ class VisionSubsystem(SubsystemBase):
         self.right_id_sub = right_table.getDoubleTopic("tid").subscribe(0)
         self.right_blue_pos_sub = right_table.getFloatArrayTopic("botpose_orb_wpiblue").subscribe([0.0, 0.0])
 
+        self.turret_x_sub = turret_table.getDoubleTopic("tx").subscribe(0.0)
+        self.turret_y_sub = turret_table.getDoubleTopic("ty").subscribe(0.0)
+        self.turret_a_sub = turret_table.getDoubleTopic("ta").subscribe(0.0)
+        self.turret_v_sub = turret_table.getDoubleTopic("tv").subscribe(0.0)
+        self.turret_id_sub = turret_table.getDoubleTopic("tid").subscribe(0.0)
+        self.turret_blue_pos_sub = turret_table.getFloatArrayTopic("botpose_orb_wpiblue").subscribe([0.0, 0.0])
+
         self.turret_imu_sub = turret_table.getFloatArrayTopic("imu").subscribe([0.0, 0.0])
 
         self.left_x_entry = 0
@@ -46,6 +53,13 @@ class VisionSubsystem(SubsystemBase):
         self.right_v_entry = 0
         self.right_id_entry = 0
         self.right_blue_pos = 0
+
+        self.turret_x_entry = 0
+        self.turret_y_entry = 0
+        self.turret_a_entry = 0
+        self.turret_v_entry = 0
+        self.turret_id_entry = 0
+        self.turret_blue_pos = 0
 
         self.turret_angle = 0
 
@@ -81,6 +95,13 @@ class VisionSubsystem(SubsystemBase):
         self.right_v_entry = self.right_v_sub.get()
         self.right_id_entry = self.right_id_sub.get()
         self.right_blue_pos = self.right_blue_pos_sub.get()
+
+        self.turret_x_entry = self.turret_x_sub.get()
+        self.turret_y_entry = self.turret_y_sub.get()
+        self.turret_a_entry = self.turret_a_sub.get()
+        self.turret_v_entry = self.turret_v_sub.get()
+        self.turret_id_entry = self.turret_id_sub.get()
+        self.turret_blue_pos = self.turret_blue_pos_sub.get()
 
         self.turret_angle_publish.set(self.turret_angle)
 

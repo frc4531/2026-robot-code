@@ -21,7 +21,16 @@ class TurretToPosition(commands2.Command):
         self.turret_sub = turret_sub
         self.addRequirements(self.turret_sub, self.vision_sub)
 
-        self.turret_pid_controller = PIDController(0.001, 0, 0)
+        self.turret_pid_controller = PIDController(0.05, 0, 0)
+
+        self.close_camera_y = 18.7  # O.G. 19.5
+        self.far_camera_y = -6.7  # O.G. -9.2
+        self.close_encoder = 0.41  # O.G. 0.41
+        self.far_encoder = 0.35  # 3/23 10:00 - 0.342, O.G. 0.348
+
+        self.cam_range = abs(self.close_camera_y - self.far_camera_y)
+        self.encoder_range = abs(self.close_encoder - self.far_encoder)
+        self.cam_angle_ratio = self.encoder_range / self.cam_range
 
         nt_instance = ntcore.NetworkTableInstance.getDefault()
         turret_table = nt_instance.getTable("turret_table")
@@ -30,13 +39,13 @@ class TurretToPosition(commands2.Command):
         self.turret_pid_output_entry = turret_table.getDoubleTopic("turret_pid_output").publish()
 
     def execute(self) -> None:
-        relative_angle = self.vision_sub.get_relative_angle(self.target_position)
-        self.current_relative_output_position_entry.set(relative_angle)
+        # Turret Control Block
+        self.turret_pid_controller.setSetpoint(self.target_position)
+        turret_output = self.turret_pid_controller.calculate(self.vision_sub.turret_x_sub)
+        self.turret_sub.set_turret_speed(turret_output)
 
-        if 0 <= relative_angle <= 270:
-            target_encoder_position = (relative_angle/270) * 140
+        # Hood Control Block
 
-            self.turret_sub.turret_pid_controller.setReference(target_encoder_position, rev.SparkBase.ControlType.kPosition)
 
     def isFinished(self) -> bool:
         return False

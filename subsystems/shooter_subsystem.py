@@ -20,14 +20,15 @@ class ShooterSubsystem(SubsystemBase):
         self.left_shooter_config = SparkFlexConfig()
 
         self.right_shooter_config.follow(9, True)
+        self.left_shooter_config.inverted(True)
 
         self.shooter_pid_controller = self.left_shooter_motor.getClosedLoopController()
 
-        self.ksP =  0.08
-        self.ksI = 8e-5
+        self.ksP =  0.15
+        self.ksI = 8e-4
         self.ksD = 0
         self.ksIz = 0
-        self.ksFF = 0
+        self.ksFF = 1/6784
         self.kMinOutput = -1
         self.kMaxOutput = 1
 

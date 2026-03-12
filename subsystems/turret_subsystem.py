@@ -41,7 +41,7 @@ class TurretSubsystem(SubsystemBase):
         #Start Turret Motor Config
         self.turret_pid_controller = self.turret_motor.getClosedLoopController()
 
-        self.ktP = 0.04
+        self.ktP = 0.075
         self.ktI = 0
         self.ktD = 0
         self.turret_min_speed = -1
