@@ -7,7 +7,6 @@
 
 import commands2
 import wpilib
-from libgrapplefrc import can_bridge_tcp
 
 from robot_container import RobotContainer
 
@@ -18,7 +17,6 @@ class MyRobot(commands2.TimedCommandRobot):
         # autonomous chooser on the dashboard.
         self.container = RobotContainer()
         self.autonomous_command = None
-        can_bridge_tcp()
 
     def autonomousInit(self) -> None:
         self.autonomous_command = self.container.get_autonomous_command()

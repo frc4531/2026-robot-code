@@ -92,7 +92,7 @@ class RobotContainer:
         )
         # Hood Up
         commands2.button.JoystickButton(self.operator_controller, 7).whileTrue(
-            HoodToPosition(self.turret_subsystem, 5)
+            HoodToPosition(self.turret_subsystem, -5)
         )
         # Hood Down
         commands2.button.JoystickButton(self.operator_controller, 8).whileTrue(

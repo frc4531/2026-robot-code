@@ -22,14 +22,14 @@ class VisionSubsystem(SubsystemBase):
         self.left_a_sub = left_table.getDoubleTopic("ta").subscribe(0.0)
         self.left_v_sub = left_table.getDoubleTopic("tv").subscribe(0.0)
         self.left_id_sub = left_table.getDoubleTopic("tid").subscribe(0)
-        self.left_blue_pos_sub = left_table.getFloatArrayTopic("botpose_orb_wpiblue").subscribe([0.0, 0.0])
+        self.left_blue_pos_sub = left_table.getFloatArrayTopic("botpose_wpiblue").subscribe([0.0, 0.0])
 
         self.right_x_sub = right_table.getDoubleTopic("tx").subscribe(0.0)
         self.right_y_sub = right_table.getDoubleTopic("ty").subscribe(0.0)
         self.right_a_sub = right_table.getDoubleTopic("ta").subscribe(0.0)
         self.right_v_sub = right_table.getDoubleTopic("tv").subscribe(0.0)
         self.right_id_sub = right_table.getDoubleTopic("tid").subscribe(0)
-        self.right_blue_pos_sub = right_table.getFloatArrayTopic("botpose_orb_wpiblue").subscribe([0.0, 0.0])
+        self.right_blue_pos_sub = right_table.getFloatArrayTopic("botpose_wpiblue").subscribe([0.0, 0.0])
 
         self.turret_x_sub = turret_table.getDoubleTopic("tx").subscribe(0.0)
         self.turret_y_sub = turret_table.getDoubleTopic("ty").subscribe(0.0)

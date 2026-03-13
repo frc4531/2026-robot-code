@@ -1,3 +1,5 @@
+import math
+
 import commands2
 import rev
 from rev import SparkFlexConfig, SparkBase
@@ -12,10 +14,11 @@ from subsystems.vision_subsystem import VisionSubsystem
 
 class TurretToPosition(commands2.Command):
 
-    def __init__(self, turret_sub: TurretSubsystem, vision_sub: VisionSubsystem, target_position) -> None:
+    def __init__(self, turret_sub: TurretSubsystem, vision_sub: VisionSubsystem, target_x_coord, target_y_coord) -> None:
         super().__init__()
 
-        self.target_position = target_position
+        self.target_x_coord = target_x_coord
+        self.target_y_coord = target_y_coord
         self.vision_sub = vision_sub
 
         self.turret_sub = turret_sub
@@ -26,7 +29,7 @@ class TurretToPosition(commands2.Command):
         self.close_camera_y = 18.7  # O.G. 19.5
         self.far_camera_y = -6.7  # O.G. -9.2
         self.close_encoder = 0.41  # O.G. 0.41
-        self.far_encoder = 0.35  # 3/23 10:00 - 0.342, O.G. 0.348
+        self.far_encoder = 16  # 3/23 10:00 - 0.342, O.G. 0.348
 
         self.cam_range = abs(self.close_camera_y - self.far_camera_y)
         self.encoder_range = abs(self.close_encoder - self.far_encoder)
@@ -40,8 +43,11 @@ class TurretToPosition(commands2.Command):
 
     def execute(self) -> None:
         # Turret Control Block
-        self.turret_pid_controller.setSetpoint(self.target_position)
-        turret_output = self.turret_pid_controller.calculate(self.vision_sub.turret_x_sub)
+        y_distance = self.vision_sub.avg_y_cord - self.target_y_coord
+        x_distance = self.vision_sub.avg_x_cord - self.target_x_coord
+        target_angle = (math.atan(y_distance / x_distance)) * (180 / math.pi)
+
+        turret_output = self.turret_pid_controller.calculate(target_angle)
         self.turret_sub.set_turret_speed(turret_output)
 
         # Hood Control Block
