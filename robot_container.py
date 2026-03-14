@@ -19,6 +19,7 @@ from commands.input_drive import InputDrive
 from commands.intake_in import IntakeIn
 from commands.shooter_out import ShooterOut
 from commands.shooter_to_velocity import ShooterToVelocity
+from commands.track_goal import TrackGoal
 from commands.turret_left import TurretLeft
 from commands.turret_right import TurretRight
 from commands.turret_to_position import TurretToPosition
@@ -78,13 +79,16 @@ class RobotContainer:
         commands2.button.JoystickButton(self.operator_controller, 1).whileTrue(
             IntakeIn(self.intake_subsystem)
         )
+        commands2.button.JoystickButton(self.operator_controller, 2).whileTrue(
+            TrackGoal(self.turret_subsystem, self.vision_subsystem)
+        )
         # Shooter Out
         commands2.button.JoystickButton(self.operator_controller, 3).toggleOnTrue(
             ShooterToVelocity(self.shooter_subsystem, 6500)
         )
         # Shooter Out
-        commands2.button.JoystickButton(self.operator_controller, 4).whileTrue(
-            ShooterToVelocity(self.shooter_subsystem, 2000)
+        commands2.button.JoystickButton(self.operator_controller, 4).toggleOntrue(
+            ShooterToVelocity(self.shooter_subsystem, 3000)
         )
         # Hopper Out
         commands2.button.JoystickButton(self.operator_controller, 5).whileTrue(

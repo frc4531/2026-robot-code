@@ -24,15 +24,17 @@ class ShooterSubsystem(SubsystemBase):
 
         self.shooter_pid_controller = self.left_shooter_motor.getClosedLoopController()
 
-        self.ksP =  0.15
-        self.ksI = 8e-4
+        self.ksP =  0.0008
+        self.ksI = 1 * (10 ** -7)
         self.ksD = 0
         self.ksIz = 0
         self.ksFF = 1/6784
+        self.ksV = 12/6784
         self.kMinOutput = -1
         self.kMaxOutput = 1
 
         self.left_shooter_config.closedLoop.pidf(self.ksP, self.ksI, self.ksD, self.ksFF).IZone(self.ksIz)
+        self.left_shooter_config.closedLoop.feedForward.kV(self.ksV)
         self.left_shooter_config.closedLoop.outputRange(self.kMinOutput,self.kMaxOutput)
 
         self.right_shooter_motor.configure(self.right_shooter_config,
