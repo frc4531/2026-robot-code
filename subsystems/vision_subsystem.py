@@ -1,9 +1,12 @@
+import math
+
 import ntcore
 import wpilib
 
 from networktables import NetworkTables
 from commands2 import SubsystemBase
 from wpimath.geometry import Rotation2d
+from constants import position_constants
 
 
 class VisionSubsystem(SubsystemBase):
@@ -68,15 +71,21 @@ class VisionSubsystem(SubsystemBase):
         self.avg_v_entry = 0
         self.avg_id_entry = 0
 
+        self.corrected_turret_x_coord = 0.0
+        self.corrected_turret_y_coord = 0.0
+
         self.avg_y_cord_entry = vision_table.getFloatTopic("avg_y_cord").publish()
         self.avg_x_cord_entry = vision_table.getFloatTopic("avg_x_cord").publish()
         self.avg_v_entry_publish = vision_table.getFloatTopic("avg_v_entry").publish()
         self.avg_id_entry_publish = vision_table.getFloatTopic("avg_id_entry").publish()
 
+        self.corrected_turret_x_coord_entry = vision_table.getFloatTopic("corrected_turret_x_coord").publish()
+        self.corrected_turret_y_coord_entry = vision_table.getFloatTopic("corrected_turret_y_coord").publish()
+
         self.turret_angle_publish = vision_table.getFloatTopic("turret_angle").publish()
         self.corrected_turret_angle_entry = vision_table.getFloatTopic("corrected_turret_angle").publish()
 
-        self.drive_heading = 0
+        self.drive_heading = 0.0
 
         self.drive_table = self.inst.getTable("drive_table")
         self.drive_heading_entry = self.drive_table.getFloatTopic("drive_train_heading").subscribe(0.0)
@@ -109,6 +118,17 @@ class VisionSubsystem(SubsystemBase):
         self.corrected_turret_angle_entry.set(self.get_relative_angle(-90))
 
         self.drive_heading = self.drive_heading_entry.get()
+
+        # Get position coordinates of the Turret relative to field
+
+        drive_heading_in_radians = ((self.drive_heading * math.pi) / 180.0)
+
+        self.corrected_turret_x_coord = self.avg_x_cord + (position_constants.PositionConstants.kXTurretOffset * math.sin(drive_heading_in_radians))
+        self.corrected_turret_y_coord = self.avg_y_cord + (position_constants.PositionConstants.kYTurretOffset * math.cos(drive_heading_in_radians))
+        self.corrected_turret_x_coord_entry.set(self.corrected_turret_x_coord)
+        self.corrected_turret_y_coord_entry.set(self.corrected_turret_y_coord)
+
+
 
         # Avg Info Estimator
         if self.left_v_entry == 1 and self.right_v_entry == 1:

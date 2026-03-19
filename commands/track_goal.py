@@ -28,16 +28,16 @@ class TrackGoal(commands2.Command):
         self.turret_pid_controller = PIDController(0.05, 0, 0)
         self.hood_controller = self.turret_sub.hood_pid_controller
 
-        self.close_distance = 1
-        self.far_distance = 5
-        self.close_encoder = 0
-        self.far_encoder = -16.0
+        self.close_distance = 1.0
+        self.far_distance = 4.75
+        self.close_encoder = 0.9
+        self.far_encoder = -13.0
 
         self.angle_velocity_adjustment_controller = PIDController(0, 0, 0)
         self.distance_velocity_adjustment_controller = PIDController(0, 0, 0)
 
         self.distance_range = abs(self.close_distance - self.far_distance)
-        self.encoder_range = abs(self.close_encoder - self.far_encoder)
+        self.encoder_range = abs(self.far_encoder - self.close_encoder)
         self.cam_angle_ratio = self.encoder_range / self.distance_range
 
         nt_instance = ntcore.NetworkTableInstance.getDefault()
@@ -48,21 +48,23 @@ class TrackGoal(commands2.Command):
         self.turret_pid_output_entry = turret_table.getDoubleTopic("turret_pid_output").publish()
 
         self.distance_entry = tracking_table.getDoubleTopic("distance_entry").publish()
+        self.target_position_entry = tracking_table.getDoubleTopic("target_position_entry").publish()
+        self.target_encoder_entry = tracking_table.getDoubleTopic("target_encoder_entry").publish()
 
     def initialize(self) -> None:
         ally = DriverStation.Alliance.kBlue # DriverStation.getAlliance()
         if ally is not None:
             if ally == DriverStation.Alliance.kRed:
-                self.target_x_coord = 4.035
-                self.target_y_coord = 11.915
+                self.target_x_coord = 11.915 #4.035
+                self.target_y_coord = 4.035 #11.915
             elif ally == DriverStation.Alliance.kBlue:
-                self.target_x_coord = 4.035
-                self.target_y_coord = 4.626
+                self.target_x_coord = 4.626 #4.035
+                self.target_y_coord = 4.035 #4.626
 
     def execute(self) -> None:
         # Turret (angle) Control Block
-        y_distance = self.vision_sub.avg_y_cord - self.target_y_coord
-        x_distance = self.vision_sub.avg_x_cord - self.target_x_coord
+        y_distance = self.vision_sub.corrected_turret_y_coord - self.target_y_coord
+        x_distance = self.vision_sub.corrected_turret_x_coord - self.target_x_coord
 
         drive_velocity = 0
 
@@ -81,9 +83,9 @@ class TrackGoal(commands2.Command):
         current_distance = math.sqrt(x_distance ** 2 + y_distance ** 2)
         distance_adjustment = self.distance_velocity_adjustment_controller.calculate(drive_velocity)
 
-        if self.close_distance > current_distance > self.far_distance:
-            target_encoder = ((((current_distance - self.far_distance) * self.encoder_range) / self.distance_range) + self.far_encoder)
-            target_position = -(max(self.far_encoder, min(self.close_encoder, target_encoder)))
+        if self.close_distance < current_distance < self.far_distance:
+            target_encoder = -((((current_distance - self.close_distance) * self.encoder_range) / self.distance_range) + self.close_encoder)
+            target_position = (max(self.far_encoder, min(self.close_encoder, target_encoder)))
             self.hood_controller.setReference(target_position, rev.SparkBase.ControlType.kPosition)
         elif current_distance < self.close_distance:
             target_position = self.close_encoder
@@ -94,7 +96,8 @@ class TrackGoal(commands2.Command):
         else:
             self.turret_sub.set_hood_speed(0)
 
-            self.distance_entry.set(current_distance)
+        self.distance_entry.set(current_distance)
+        self.target_position_entry.set(target_position)
 
 
     def isFinished(self) -> bool:

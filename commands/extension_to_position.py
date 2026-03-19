@@ -2,22 +2,22 @@ import commands2
 import wpilib
 import wpimath.controller
 
-from subsystems.hopper_subsystem import HopperSubsystem
+from subsystems.extension_subsystem import ExtensionSubsystem
 
 
 class ExtensionToPosition(commands2.PIDCommand):
 
-    def __init__(self, hopper_sub: HopperSubsystem, target_position) -> None:
+    def __init__(self, extension_sub: ExtensionSubsystem, target_position) -> None:
         super().__init__(
             wpimath.controller.PIDController(1.25, 0, 0),
             # Close loop on absolute encoder
-            lambda: hopper_sub.get_extension_position(),
+            lambda: extension_sub.get_extension_position(),
             # Set reference to target
             target_position,
             # Pipe output to turn arm
-            lambda output: hopper_sub.set_extension_speed(output),
+            lambda output: extension_sub.set_extension_speed(output),
             # Require the arm
-            hopper_sub
+            extension_sub
         )
 
     def isFinished(self) -> bool:

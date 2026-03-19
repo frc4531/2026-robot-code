@@ -1,2 +1,3 @@
 class PositionConstants:
-    kJeff= 0
+    kXTurretOffset = -0.164
+    kYTurretOffset = -0.127
