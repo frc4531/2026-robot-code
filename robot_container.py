@@ -15,6 +15,7 @@ from commands.climber_up import ClimberUp
 from commands.drive_command import DriveCommand
 from commands.drive_turn_to_angle import DriveTurnToAngle
 from commands.extension_to_position import ExtensionToPosition
+from commands.hood_and_turret_to_positions import HoodAndTurretToPositions
 from commands.hood_down import HoodDown
 from commands.hood_to_positon import HoodToPosition
 from commands.hood_up import HoodUp
@@ -80,16 +81,18 @@ class RobotContainer:
         self.left_one_sweep = "Left One Sweep + Shoot"
         self.right_one_sweep = "Right One Sweep + Shoot"
         self.middle_depot = "Middle Depot + Shoot"
+        self.test_auto = "Test Auto"
 
         self.chooser.setDefaultOption("Shoot Preload", self.shoot_preload)
         self.chooser.addOption("Do Nothing", self.do_nothing)
         self.chooser.addOption("Left One Sweep + Shoot", self.left_one_sweep)
         self.chooser.addOption("Right One Sweep + Shoot", self.right_one_sweep)
         self.chooser.addOption("Middle Depot + Shoot", self.middle_depot)
+        self.chooser.addOption("Test Auto", self.test_auto)
 
         wpilib.SmartDashboard.putData("Auto Chooser", self.chooser)
 
-        self.drive_subsystem.gyro.reset()
+        # self.drive_subsystem.gyro.reset()
 
     def configure_button_bindings(self) -> None:
         """
@@ -97,25 +100,44 @@ class RobotContainer:
         instantiating a :GenericHID or one of its subclasses (Joystick or XboxController),
         and then passing it to a JoystickButton.
         """
+        # -- OPERATOR CONTROL BLOCK --
         # Intake In
-        commands2.button.JoystickButton(self.operator_controller, 4).whileTrue(
+        commands2.button.JoystickButton(self.operator_controller, 1).whileTrue(
             IntakeIn(self.intake_subsystem)
         )
-        commands2.button.JoystickButton(self.operator_controller, 2).whileTrue(
-            TrackGoal(self.turret_subsystem, self.vision_subsystem)
-        )
-        # Shooter Out
-        commands2.button.JoystickButton(self.operator_controller, 3).toggleOnTrue(
-            ShooterToVelocity(self.shooter_subsystem, 6500)
-        )
-        # Shooter Out
-        commands2.button.JoystickButton(self.operator_controller, 1).toggleOnTrue(
-            ShooterToVelocity(self.shooter_subsystem, 3000)
-        )
         # Hopper Out
-        commands2.button.JoystickButton(self.operator_controller, 5).whileTrue(
+        commands2.button.JoystickButton(self.operator_controller, 3).whileTrue(
             HopperOut(self.hopper_subsystem)
         )
+        commands2.button.JoystickButton(self.operator_controller, 3).whileTrue(
+            IntakeIn(self.intake_subsystem)
+        )
+        # Home (into goal) Shooter Velocity
+        commands2.button.JoystickButton(self.operator_controller, 9).toggleOnTrue(
+            ShooterToVelocity(self.shooter_subsystem, 3000)
+        )
+        # Shooter Out
+        commands2.button.JoystickButton(self.operator_controller, 10).toggleOnTrue(
+            ShooterToVelocity(self.shooter_subsystem, 6500)
+        )
+        # Track Goal
+        commands2.button.JoystickButton(self.operator_controller, 11).whileTrue(
+            TrackGoal(self.turret_subsystem, self.vision_subsystem)
+        )
+        # Passing Presets
+        commands2.button.JoystickButton(self.operator_controller, 12).whileTrue(
+            HoodAndTurretToPositions(self.turret_subsystem, self.vision_subsystem, -14, -180)
+        )
+        # Defense Presets
+        commands2.button.JoystickButton(self.operator_controller, 13).whileTrue(
+            HoodAndTurretToPositions(self.turret_subsystem, self.vision_subsystem, -14, -180)
+        )
+        commands2.button.JoystickButton(self.operator_controller, 13).onTrue(
+            ExtensionToPosition(self.extension_subsystem, 0.14)
+        )
+
+        # -- DRIVER CONTROL BLOCK --
+        # Hopper Extension Ungelation (e ur e ur)
         commands2.button.JoystickButton(self.driver_controller, 1).whileTrue(
             commands2.SequentialCommandGroup(
                 commands2.ParallelDeadlineGroup(
@@ -128,47 +150,6 @@ class RobotContainer:
                 )
             ).repeatedly()
         )
-        # Hood Up
-        commands2.button.JoystickButton(self.operator_controller, 7).whileTrue(
-            HoodToPosition(self.turret_subsystem, -5)
-        )
-        # Hood Down
-        commands2.button.JoystickButton(self.operator_controller, 8).whileTrue(
-            HoodToPosition(self.turret_subsystem, 0.5)
-        )
-
-        # Turret to one position
-        commands2.button.JoystickButton(self.operator_controller, 9).whileTrue(
-            TurretToPosition(self.turret_subsystem, self.vision_subsystem, -90)
-        )
-        # Turret to another position
-        commands2.button.JoystickButton(self.operator_controller, 10).whileTrue(
-            TurretToPosition(self.turret_subsystem, self.vision_subsystem, -180)
-        )
-        # Turret to another position
-        commands2.button.JoystickButton(self.operator_controller, 11).whileTrue(
-            TurretToPosition(self.turret_subsystem, self.vision_subsystem, -225)
-        )
-
-        # Manual Turret
-        commands2.button.JoystickButton(self.operator_controller, 12).whileTrue(
-            TurretLeft(self.turret_subsystem)
-        )
-        # Manual Turret
-        commands2.button.JoystickButton(self.operator_controller, 13).whileTrue(
-            TurretRight(self.turret_subsystem)
-        )
-
-        # # Extension to one position
-        # commands2.button.JoystickButton(self.operator_controller, 9).whileTrue(
-        #     ExtensionToPosition(self.hopper_subsystem, 0.47)
-        # )
-        #
-        # # Extension to another position
-        # commands2.button.JoystickButton(self.operator_controller, 10).whileTrue(
-        #     ExtensionToPosition(self.hopper_subsystem, 0.63)
-        # )
-
         # Climber Up
         commands2.button.JoystickButton(self.driver_controller, 5).whileTrue(
             ClimberUp(self.climber_subsystem)
@@ -191,14 +172,25 @@ class RobotContainer:
         # Add kinematics to ensure max speed is actually obeyed
         config.setKinematics(DriveConstants.kDriveKinematics)
 
-        # Forward Auto Trajectory to follow. All units in meters.
-        forward_trajectory = TrajectoryGenerator.generateTrajectory(
+        # Middle Auto Trajectory to follow. All units in meters.
+        mid_trajectory = TrajectoryGenerator.generateTrajectory(
             # Start at the origin facing the +X direction
             Pose2d(0, 0, Rotation2d.fromDegrees(0)),
             # Pass through these two interior waypoints, making an 's' curve path
             [],
             # End 3 meters straight ahead of where we started, facing forward
-            Pose2d(0, -3, Rotation2d.fromDegrees(0)),
+            Pose2d(0, -1, Rotation2d.fromDegrees(0)),
+            config,
+        )
+
+        # Left Auto Trajectory to follow. All units in meters.
+        sides_trajectory = TrajectoryGenerator.generateTrajectory(
+            # Start at the origin facing the +X direction
+            Pose2d(0, 0, Rotation2d.fromDegrees(0)),
+            # Pass through these two interior waypoints, making an 's' curve path
+            [],
+            # End 3 meters straight ahead of where we started, facing forward
+            Pose2d(0, -2, Rotation2d.fromDegrees(0)),
             config,
         )
 
@@ -214,15 +206,25 @@ class RobotContainer:
                                                         PIDController(AutoConstants.kPYController, 0, 0),
                                                         thetaController)
 
-        # forward_trajectory_command = commands2.SwerveControllerCommand(
-        #     forward_trajectory,
-        #     self.drive_subsystem.get_pose,  # Functional interface to feed supplier
-        #     DriveConstants.kDriveKinematics,
-        #     # Position controllers
-        #     holonomic_controller,
-        #     self.drive_subsystem.set_module_states(),
-        #     (self.drive_subsystem,),
-        # )
+        mid_trajectory_command = commands2.SwerveControllerCommand(
+            mid_trajectory,
+            self.drive_subsystem.get_pose,  # Functional interface to feed supplier
+            DriveConstants.kDriveKinematics,
+            # Position controllers
+            holonomic_controller,
+            self.drive_subsystem.set_module_states,
+            (self.drive_subsystem,),
+        )
+
+        sides_trajectory_command = commands2.SwerveControllerCommand(
+            sides_trajectory,
+            self.drive_subsystem.get_pose,  # Functional interface to feed supplier
+            DriveConstants.kDriveKinematics,
+            # Position controllers
+            holonomic_controller,
+            self.drive_subsystem.set_module_states,
+            (self.drive_subsystem,),
+        )
 
         # Start Auto Logic
         auto_selected = self.chooser.getSelected()
@@ -310,8 +312,66 @@ class RobotContainer:
                         )
                     )
             case self.right_one_sweep:
-                return waitSeconds(1)
+                return commands2.SequentialCommandGroup(
+                        commands2.ParallelDeadlineGroup(
+                            WaitCommand(1),
+                            InputDrive(self.drive_subsystem, 0, 0.9, 0)
+                        ),
+                        commands2.ParallelDeadlineGroup(
+                            WaitCommand(0.5),
+                            InputDrive(self.drive_subsystem, -0.9, 0, 0)
+                        ),
+                        commands2.ParallelDeadlineGroup(
+                            WaitCommand(2.5),
+                            InputDrive(self.drive_subsystem, -0.2, 0, 0),
+                            IntakeIn(self.intake_subsystem),
+                        ),
+                        commands2.ParallelDeadlineGroup(
+                            WaitCommand(2.5),
+                            InputDrive(self.drive_subsystem, 0.4, 0, 0),
+                        ),
+                        commands2.ParallelDeadlineGroup(
+                            WaitCommand(2),
+                            InputDrive(self.drive_subsystem, 0, -0.9, 0),
+                        ),
+                        commands2.ParallelDeadlineGroup(
+                            WaitCommand(0.6),
+                            InputDrive(self.drive_subsystem, -0.5, 0, 0),
+                        ),
+                        commands2.ParallelDeadlineGroup(
+                            WaitCommand(0.5),
+                            DriveTurnToAngle(self.drive_subsystem, 45),
+                        ),
+                        commands2.ParallelDeadlineGroup(
+                            WaitCommand(2),
+                            TrackGoal(self.turret_subsystem, self.vision_subsystem),
+                            ShooterToVelocity(self.shooter_subsystem, 3000)
+                        ),
+                        commands2.ParallelDeadlineGroup(
+                            WaitCommand(8),
+                            TrackGoal(self.turret_subsystem, self.vision_subsystem),
+                            ShooterToVelocity(self.shooter_subsystem, 3000),
+                            HopperOut(self.hopper_subsystem),
+                            IntakeIn(self.intake_subsystem),
+                            commands2.SequentialCommandGroup(
+                                commands2.ParallelDeadlineGroup(
+                                    WaitCommand(1),
+                                    ExtensionToPosition(self.extension_subsystem, 0.14),
+                                ),
+                                commands2.ParallelDeadlineGroup(
+                                    WaitCommand(1),
+                                    ExtensionToPosition(self.extension_subsystem, 0.324),
+                                )
+                            ).repeatedly(),
+                        )
+                    )
             case self.middle_depot:
                 return waitSeconds(1)
+            case self.test_auto:
+                return sides_trajectory_command.andThen(
+                        commands2.RunCommand(
+                            lambda: self.drive_subsystem.drive(0, 0, 0, False, False)
+                        )
+                    )
             case _:
                 return waitSeconds(1)
