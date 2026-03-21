@@ -131,8 +131,8 @@ class OIConstants:
 
 
 class AutoConstants:
-    kMaxSpeedMetersPerSecond = 3
-    kMaxAccelerationMetersPerSecondSquared = 3
+    kMaxSpeedMetersPerSecond = 0.5
+    kMaxAccelerationMetersPerSecondSquared = 0.5
     kMaxAngularSpeedRadiansPerSecond = math.pi
     kMaxAngularSpeedRadiansPerSecondSquared = math.pi
 
@@ -141,7 +141,7 @@ class AutoConstants:
 
     kPXController = 1.2
     kPYController = 1.2
-    kPThetaController = 0.25
+    kPThetaController = 0
 
     # Constraint for the motion profiled robot angle controller
     kThetaControllerConstraints = TrapezoidProfileRadians.Constraints(

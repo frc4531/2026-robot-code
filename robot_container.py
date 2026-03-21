@@ -214,32 +214,32 @@ class RobotContainer:
         test_trajectory = TrajectoryGenerator.generateTrajectory(
             # Start at the origin facing the +X direction
             [Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-            Pose2d(0.8, 0, Rotation2d.fromDegrees(0)),
-            Pose2d(0, 0.8, Rotation2d.fromDegrees(0)),
-            Pose2d(-0.8, 0, Rotation2d.fromDegrees(0)),
-             Pose2d(0, -0.8, Rotation2d.fromDegrees(0))],
-            slow_config,
+            Pose2d(2, 0, Rotation2d.fromDegrees(0)),
+            Pose2d(0, 2, Rotation2d.fromDegrees(0)),
+            Pose2d(-2, 0, Rotation2d.fromDegrees(0)),
+             Pose2d(0, -2, Rotation2d.fromDegrees(0))],
+            config,
         )
 
         # Left Sweep LEAVE Trajectory
         left_leave_trajectory = TrajectoryGenerator.generateTrajectory(
             [Pose2d(0, 0, Rotation2d.fromDegrees(90)),
-             Pose2d(1.825, 0, Rotation2d.fromDegrees(90)),
-             Pose2d(3.26, -0.98, Rotation2d.fromDegrees(90))],
+             Pose2d(-1.825, 0, Rotation2d.fromDegrees(90)),
+             Pose2d(-3.26, 0.98, Rotation2d.fromDegrees(90))],
             config,
         )
 
         left_intake_trajectory = TrajectoryGenerator.generateTrajectory(
-            [Pose2d(3.26, -0.98, Rotation2d.fromDegrees(90)),
-             Pose2d(3.26, -2.74, Rotation2d.fromDegrees(90))],
+            [Pose2d(-3.26, 0.98, Rotation2d.fromDegrees(90)),
+             Pose2d(-3.26, 2.74, Rotation2d.fromDegrees(90))],
             slow_config,
         )
 
         left_return_trajectory = TrajectoryGenerator.generateTrajectory(
-            [Pose2d(3.26, -2.74, Rotation2d.fromDegrees(90)),
-             Pose2d(1.825, 0, Rotation2d.fromDegrees(90)),
+            [Pose2d(-3.26, 2.74, Rotation2d.fromDegrees(90)),
+             Pose2d(-1.825, 0, Rotation2d.fromDegrees(90)),
              Pose2d(0, 0, Rotation2d.fromDegrees(90)),
-             Pose2d(-1.45, 0, Rotation2d.fromDegrees(-135))],
+             Pose2d(1.45, 0, Rotation2d.fromDegrees(-135))],
             config,
         )
 
@@ -315,6 +315,7 @@ class RobotContainer:
         auto_selected = self.chooser.getSelected()
         match auto_selected:
             case self.do_nothing:
+                # return commands2.InstantCommand(self.drive_subsystem.reset_odometry(Pose2d(0, 0, self.drive_subsystem.get_heading())), self.drive_subsystem)
                 return waitSeconds(1)
             case self.shoot_preload:
                 return commands2.SequentialCommandGroup(
@@ -453,16 +454,30 @@ class RobotContainer:
             case self.middle_depot:
                 return waitSeconds(1)
             case self.test_auto:
-                return test_trajectory_command.andThen(
+                return commands2.SequentialCommandGroup(
+                    commands2.InstantCommand(
+                        self.drive_subsystem.reset_odometry(Pose2d(0, 0, self.drive_subsystem.get_heading())),
+                        self.drive_subsystem),
+                    test_trajectory_command.andThen(
                         InputDrive(self.drive_subsystem, 0, 0, 0)
                     )
-            case self.left_trajectory:
-                return left_trajectory_command.andThen(
-                        InputDrive(self.drive_subsystem, 0, 0, 0)
-                    )
-            case self.right_trajectory:
-                return right_trajectory_command.andThen(
-                    InputDrive(self.drive_subsystem, 0, 0, 0)
                 )
+            case self.left_trajectory:
+                return commands2.SequentialCommandGroup(
+                    commands2.InstantCommand(
+                        self.drive_subsystem.reset_odometry(Pose2d(0, 0, self.drive_subsystem.get_heading())),
+                        self.drive_subsystem),
+                    left_trajectory_command.andThen(
+                        InputDrive(self.drive_subsystem, 0, 0, 0)
+                    )
+                )
+            case self.right_trajectory:
+                return commands2.SequentialCommandGroup(
+                    commands2.InstantCommand(self.drive_subsystem.reset_odometry(Pose2d(0, 0, self.drive_subsystem.get_heading())),
+                    self.drive_subsystem),
+                        right_trajectory_command.andThen(
+                            InputDrive(self.drive_subsystem, 0, 0, 0)
+                        )
+                    )
             case _:
                 return waitSeconds(1)

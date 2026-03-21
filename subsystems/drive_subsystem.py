@@ -79,13 +79,12 @@ class DriveSubsystem(Subsystem):
         drive_table = nt_instance.getTable("drive_table")
 
         self.heading_entry = drive_table.getDoubleTopic("drive_train_heading").publish()
-        self.get_pose_x_entry = drive_table.getDoubleTopic("drive_train_pose").publish()
-        self.get_pose_x_entry = drive_table.getDoubleTopic("drive_train_pose").publish()
+        self.get_pose_entry = drive_table.getDoubleArrayTopic("drive_train_pose").publish()
 
     def periodic(self) -> None:
         # Update the odometry in the periodic block
         self.odometry.update(
-            Rotation2d.fromDegrees(self.gyro.getAngle()),
+            Rotation2d.fromDegrees(self.get_heading()),
             (
                 self.front_left.get_position(),
                 self.front_right.get_position(),
@@ -95,7 +94,8 @@ class DriveSubsystem(Subsystem):
         )
 
         self.heading_entry.set(self.get_heading())
-        self.get_pose_x_entry.set(self.get_pose().X())
+        pose_array = [float(self.get_pose().X()), float(self.get_pose().Y()), float(self.get_pose().rotation().degrees())]
+        self.get_pose_entry.set(pose_array)
 
     def get_pose(self) -> Pose2d:
         """Returns the currently-estimated pose of the robot.
@@ -111,7 +111,7 @@ class DriveSubsystem(Subsystem):
 
         """
         self.odometry.resetPosition(
-            Rotation2d.fromDegrees(self.gyro.getAngle()),
+            Rotation2d.fromDegrees(self.get_heading()),
             (
                 self.front_left.get_position(),
                 self.front_right.get_position(),
