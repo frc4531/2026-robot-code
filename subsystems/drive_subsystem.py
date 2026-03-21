@@ -277,26 +277,6 @@ class DriveSubsystem(Subsystem):
         self.rear_left.set_desired_state(rl)
         self.rear_right.set_desired_state(rr)
 
-    def set_module_states_list(
-        self,
-        desired_states: typing.Sequence[
-            SwerveModuleState
-        ],
-    ) -> None:
-        """Sets the swerve ModuleStates.
-
-        :param desired_states: The desired SwerveModule states.
-        """
-        desired_states_tuple = tuple(desired_states[:4])
-
-        fl, fr, rl, rr = SwerveDrive4Kinematics.desaturateWheelSpeeds(
-            desired_states_tuple, DriveConstants.kMaxSpeedMetersPerSecond
-        )
-        self.front_left.set_desired_state(fl)
-        self.front_right.set_desired_state(fr)
-        self.rear_left.set_desired_state(rl)
-        self.rear_right.set_desired_state(rr)
-
     def reset_encoders(self) -> None:
         """Resets the drive encoders to currently read a position of 0."""
         self.front_left.reset_encoders()

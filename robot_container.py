@@ -93,6 +93,7 @@ class RobotContainer:
         wpilib.SmartDashboard.putData("Auto Chooser", self.chooser)
 
         # self.drive_subsystem.gyro.reset()
+        self.drive_subsystem.reset_odometry(Pose2d(0, 0, Rotation2d.fromDegrees(0)))
 
     def configure_button_bindings(self) -> None:
         """
@@ -142,7 +143,7 @@ class RobotContainer:
             commands2.SequentialCommandGroup(
                 commands2.ParallelDeadlineGroup(
                     WaitCommand(1),
-                    ExtensionToPosition(self.extension_subsystem, 0.14),
+                    ExtensionToPosition(self.extension_subsystem, 0.18),
                 ),
             commands2.ParallelDeadlineGroup(
                 WaitCommand(1),
@@ -172,6 +173,13 @@ class RobotContainer:
         # Add kinematics to ensure max speed is actually obeyed
         config.setKinematics(DriveConstants.kDriveKinematics)
 
+        config = TrajectoryConfig(
+            AutoConstants.kMaxSpeedMetersPerSecond,
+            AutoConstants.kMaxAccelerationMetersPerSecondSquared,
+        )
+        # Add kinematics to ensure max speed is actually obeyed
+        config.setKinematics(DriveConstants.kDriveKinematics)
+
         # Middle Auto Trajectory to follow. All units in meters.
         mid_trajectory = TrajectoryGenerator.generateTrajectory(
             # Start at the origin facing the +X direction
@@ -184,13 +192,14 @@ class RobotContainer:
         )
 
         # Left Auto Trajectory to follow. All units in meters.
-        sides_trajectory = TrajectoryGenerator.generateTrajectory(
+        test_trajectory = TrajectoryGenerator.generateTrajectory(
             # Start at the origin facing the +X direction
-            Pose2d(0, 0, Rotation2d.fromDegrees(0)),
+            [Pose2d(0, 0, Rotation2d.fromDegrees(0)),
             # Pass through these two interior waypoints, making an 's' curve path
-            [],
+            Pose2d(1, 1, Rotation2d.fromDegrees(0)),
+            Pose2d(-1, -1, Rotation2d.fromDegrees(0)),
             # End 3 meters straight ahead of where we started, facing forward
-            Pose2d(0, -2, Rotation2d.fromDegrees(0)),
+            Pose2d(1, -1, Rotation2d.fromDegrees(0))],
             config,
         )
 
@@ -216,8 +225,8 @@ class RobotContainer:
             (self.drive_subsystem,),
         )
 
-        sides_trajectory_command = commands2.SwerveControllerCommand(
-            sides_trajectory,
+        test_trajectory_command = commands2.SwerveControllerCommand(
+            test_trajectory,
             self.drive_subsystem.get_pose,  # Functional interface to feed supplier
             DriveConstants.kDriveKinematics,
             # Position controllers
@@ -368,10 +377,8 @@ class RobotContainer:
             case self.middle_depot:
                 return waitSeconds(1)
             case self.test_auto:
-                return sides_trajectory_command.andThen(
-                        commands2.RunCommand(
-                            lambda: self.drive_subsystem.drive(0, 0, 0, False, False)
-                        )
+                return test_trajectory_command.andThen(
+                        InputDrive(self.drive_subsystem, 0, 0, 0)
                     )
             case _:
                 return waitSeconds(1)
