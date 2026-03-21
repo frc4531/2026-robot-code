@@ -22,7 +22,7 @@ from commands.hood_up import HoodUp
 from commands.hopper_out import HopperOut
 from commands.input_drive import InputDrive
 from commands.intake_in import IntakeIn
-from commands.shooter_out import ShooterOut
+from commands.shooter_off import ShooterOff
 from commands.shooter_to_velocity import ShooterToVelocity
 from commands.track_goal import TrackGoal
 from commands.turret_left import TurretLeft
@@ -73,6 +73,9 @@ class RobotContainer:
         self.turret_subsystem.setDefaultCommand(
             HoodToPosition(self.turret_subsystem, 0.5)
         )
+        self.shooter_subsystem.setDefaultCommand(
+            ShooterToVelocity(self.shooter_subsystem, 3000)
+        )
         # Configure Auto Chooser
         # Configure Auto Chooser
         self.chooser = wpilib.SendableChooser()
@@ -83,12 +86,18 @@ class RobotContainer:
         self.middle_depot = "Middle Depot + Shoot"
         self.test_auto = "Test Auto"
 
+        self.left_trajectory = "Left Trajectory"
+        self.right_trajectory = "Right Trajectory"
+
         self.chooser.setDefaultOption("Shoot Preload", self.shoot_preload)
         self.chooser.addOption("Do Nothing", self.do_nothing)
         self.chooser.addOption("Left One Sweep + Shoot", self.left_one_sweep)
         self.chooser.addOption("Right One Sweep + Shoot", self.right_one_sweep)
         self.chooser.addOption("Middle Depot + Shoot", self.middle_depot)
         self.chooser.addOption("Test Auto", self.test_auto)
+
+        self.chooser.addOption("Left Trajectory", self.left_trajectory)
+        self.chooser.addOption("Right Trajectory", self.right_trajectory)
 
         wpilib.SmartDashboard.putData("Auto Chooser", self.chooser)
 
@@ -113,13 +122,17 @@ class RobotContainer:
         commands2.button.JoystickButton(self.operator_controller, 3).whileTrue(
             IntakeIn(self.intake_subsystem)
         )
-        # Home (into goal) Shooter Velocity
-        commands2.button.JoystickButton(self.operator_controller, 9).toggleOnTrue(
-            ShooterToVelocity(self.shooter_subsystem, 3000)
+        # Hopper Extension Out
+        commands2.button.JoystickButton(self.operator_controller, 7).whileTrue(
+            ExtensionToPosition(self.extension_subsystem, 0.324)
         )
-        # Shooter Out
-        commands2.button.JoystickButton(self.operator_controller, 10).toggleOnTrue(
-            ShooterToVelocity(self.shooter_subsystem, 6500)
+        # Hopper Extension In
+        commands2.button.JoystickButton(self.operator_controller, 8).whileTrue(
+            ExtensionToPosition(self.extension_subsystem, 0.14)
+        )
+        # Shooter Off
+        commands2.button.JoystickButton(self.operator_controller, 9).toggleOnTrue(
+            ShooterOff(self.shooter_subsystem)
         )
         # Track Goal
         commands2.button.JoystickButton(self.operator_controller, 11).whileTrue(
@@ -129,9 +142,15 @@ class RobotContainer:
         commands2.button.JoystickButton(self.operator_controller, 12).whileTrue(
             HoodAndTurretToPositions(self.turret_subsystem, self.vision_subsystem, -14, -180)
         )
+        commands2.button.JoystickButton(self.operator_controller, 12).toggleOnTrue(
+            ShooterToVelocity(self.shooter_subsystem, 6500)
+        )
         # Defense Presets
         commands2.button.JoystickButton(self.operator_controller, 13).whileTrue(
             HoodAndTurretToPositions(self.turret_subsystem, self.vision_subsystem, -14, -180)
+        )
+        commands2.button.JoystickButton(self.operator_controller, 13).toggleOnTrue(
+            ShooterToVelocity(self.shooter_subsystem, 6500)
         )
         commands2.button.JoystickButton(self.operator_controller, 13).onTrue(
             ExtensionToPosition(self.extension_subsystem, 0.14)
@@ -173,9 +192,9 @@ class RobotContainer:
         # Add kinematics to ensure max speed is actually obeyed
         config.setKinematics(DriveConstants.kDriveKinematics)
 
-        config = TrajectoryConfig(
-            AutoConstants.kMaxSpeedMetersPerSecond,
-            AutoConstants.kMaxAccelerationMetersPerSecondSquared,
+        slow_config = TrajectoryConfig(
+            AutoConstants.kSlowSpeedMetersPerSecond,
+            AutoConstants.kSlowAccelerationMetersPerSecondSquared,
         )
         # Add kinematics to ensure max speed is actually obeyed
         config.setKinematics(DriveConstants.kDriveKinematics)
@@ -195,13 +214,60 @@ class RobotContainer:
         test_trajectory = TrajectoryGenerator.generateTrajectory(
             # Start at the origin facing the +X direction
             [Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-            # Pass through these two interior waypoints, making an 's' curve path
-            Pose2d(1, 1, Rotation2d.fromDegrees(0)),
-            Pose2d(-1, -1, Rotation2d.fromDegrees(0)),
-            # End 3 meters straight ahead of where we started, facing forward
-            Pose2d(1, -1, Rotation2d.fromDegrees(0))],
+            Pose2d(0.8, 0, Rotation2d.fromDegrees(0)),
+            Pose2d(0, 0.8, Rotation2d.fromDegrees(0)),
+            Pose2d(-0.8, 0, Rotation2d.fromDegrees(0)),
+             Pose2d(0, -0.8, Rotation2d.fromDegrees(0))],
+            slow_config,
+        )
+
+        # Left Sweep LEAVE Trajectory
+        left_leave_trajectory = TrajectoryGenerator.generateTrajectory(
+            [Pose2d(0, 0, Rotation2d.fromDegrees(90)),
+             Pose2d(1.825, 0, Rotation2d.fromDegrees(90)),
+             Pose2d(3.26, -0.98, Rotation2d.fromDegrees(90))],
             config,
         )
+
+        left_intake_trajectory = TrajectoryGenerator.generateTrajectory(
+            [Pose2d(3.26, -0.98, Rotation2d.fromDegrees(90)),
+             Pose2d(3.26, -2.74, Rotation2d.fromDegrees(90))],
+            slow_config,
+        )
+
+        left_return_trajectory = TrajectoryGenerator.generateTrajectory(
+            [Pose2d(3.26, -2.74, Rotation2d.fromDegrees(90)),
+             Pose2d(1.825, 0, Rotation2d.fromDegrees(90)),
+             Pose2d(0, 0, Rotation2d.fromDegrees(90)),
+             Pose2d(-1.45, 0, Rotation2d.fromDegrees(-135))],
+            config,
+        )
+
+        left_complete_trajectory = left_leave_trajectory + left_intake_trajectory + left_return_trajectory
+
+        # RIGHT Sweep LEAVE Trajectory
+        right_leave_trajectory = TrajectoryGenerator.generateTrajectory(
+            [Pose2d(0, 0, Rotation2d.fromDegrees(-90)),
+             Pose2d(-1.825, 0, Rotation2d.fromDegrees(-90)),
+             Pose2d(-3.26, 0.98, Rotation2d.fromDegrees(-90))],
+            config,
+        )
+
+        right_intake_trajectory = TrajectoryGenerator.generateTrajectory(
+            [Pose2d(-3.26, 0.98, Rotation2d.fromDegrees(-90)),
+             Pose2d(-3.26, 2.74, Rotation2d.fromDegrees(-90))],
+            slow_config,
+        )
+
+        right_return_trajectory = TrajectoryGenerator.generateTrajectory(
+            [Pose2d(-3.26, 2.74, Rotation2d.fromDegrees(-90)),
+             Pose2d(-1.825, 0, Rotation2d.fromDegrees(-90)),
+             Pose2d(0, 0, Rotation2d.fromDegrees(-90)),
+             Pose2d(1.45, 0, Rotation2d.fromDegrees(135))],
+            config,
+        )
+
+        right_complete_trajectory = right_leave_trajectory + right_intake_trajectory + right_return_trajectory
 
         thetaController = ProfiledPIDControllerRadians(
             AutoConstants.kPThetaController,
@@ -215,8 +281,18 @@ class RobotContainer:
                                                         PIDController(AutoConstants.kPYController, 0, 0),
                                                         thetaController)
 
-        mid_trajectory_command = commands2.SwerveControllerCommand(
-            mid_trajectory,
+        left_trajectory_command = commands2.SwerveControllerCommand(
+            left_complete_trajectory,
+            self.drive_subsystem.get_pose,  # Functional interface to feed supplier
+            DriveConstants.kDriveKinematics,
+            # Position controllers
+            holonomic_controller,
+            self.drive_subsystem.set_module_states,
+            (self.drive_subsystem,),
+        )
+
+        right_trajectory_command = commands2.SwerveControllerCommand(
+            right_complete_trajectory,
             self.drive_subsystem.get_pose,  # Functional interface to feed supplier
             DriveConstants.kDriveKinematics,
             # Position controllers
@@ -380,5 +456,13 @@ class RobotContainer:
                 return test_trajectory_command.andThen(
                         InputDrive(self.drive_subsystem, 0, 0, 0)
                     )
+            case self.left_trajectory:
+                return left_trajectory_command.andThen(
+                        InputDrive(self.drive_subsystem, 0, 0, 0)
+                    )
+            case self.right_trajectory:
+                return right_trajectory_command.andThen(
+                    InputDrive(self.drive_subsystem, 0, 0, 0)
+                )
             case _:
                 return waitSeconds(1)

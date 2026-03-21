@@ -3,7 +3,7 @@ import commands2
 from subsystems.shooter_subsystem import ShooterSubsystem
 
 
-class ShooterOut(commands2.Command):
+class ShooterOff(commands2.Command):
 
     def __init__(self, shooter_sub: ShooterSubsystem) -> None:
         super().__init__()
@@ -12,7 +12,7 @@ class ShooterOut(commands2.Command):
         self.addRequirements(self.shooter_sub)
 
     def execute(self) -> None:
-        self.shooter_sub.set_shooter_speed(0.8)
+        self.shooter_sub.set_shooter_speed(0)
 
     def isFinished(self) -> bool:
         return False

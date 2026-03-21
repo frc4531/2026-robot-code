@@ -136,7 +136,7 @@ class AutoConstants:
     kMaxAngularSpeedRadiansPerSecond = math.pi
     kMaxAngularSpeedRadiansPerSecondSquared = math.pi
 
-    kSlowSpeedMetersPerSecond = 3
+    kSlowSpeedMetersPerSecond = 1.2
     kSlowAccelerationMetersPerSecondSquared = 3
 
     kPXController = 1.2

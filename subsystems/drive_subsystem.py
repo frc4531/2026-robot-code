@@ -79,6 +79,8 @@ class DriveSubsystem(Subsystem):
         drive_table = nt_instance.getTable("drive_table")
 
         self.heading_entry = drive_table.getDoubleTopic("drive_train_heading").publish()
+        self.get_pose_x_entry = drive_table.getDoubleTopic("drive_train_pose").publish()
+        self.get_pose_x_entry = drive_table.getDoubleTopic("drive_train_pose").publish()
 
     def periodic(self) -> None:
         # Update the odometry in the periodic block
@@ -93,6 +95,7 @@ class DriveSubsystem(Subsystem):
         )
 
         self.heading_entry.set(self.get_heading())
+        self.get_pose_x_entry.set(self.get_pose().X())
 
     def get_pose(self) -> Pose2d:
         """Returns the currently-estimated pose of the robot.

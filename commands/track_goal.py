@@ -52,10 +52,10 @@ class TrackGoal(commands2.Command):
         self.target_encoder_entry = tracking_table.getDoubleTopic("target_encoder_entry").publish()
 
     def initialize(self) -> None:
-        ally = DriverStation.Alliance.kBlue # DriverStation.getAlliance()
+        ally = DriverStation.getAlliance() # DriverStation.getAlliance()
         if ally is not None:
             if ally == DriverStation.Alliance.kRed:
-                self.target_x_coord = 11.915 #4.035
+                self.target_x_coord = 12.25 #4.035
                 self.target_y_coord = 4.035 #11.915
             elif ally == DriverStation.Alliance.kBlue:
                 self.target_x_coord = 4.626 #4.035
