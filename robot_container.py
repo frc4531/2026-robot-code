@@ -178,6 +178,8 @@ class RobotContainer:
         commands2.button.JoystickButton(self.driver_controller, 10).whileTrue(
             ClimberDown(self.climber_subsystem)
         )
+    def periodic(self):
+        self.ntcore.putBoolean("LED_TrackingHub", False)
 
     def disable_pid_subsystems(self) -> None:
         """Disables all ProfiledPIDSubsystem and PIDSubsystem instances.

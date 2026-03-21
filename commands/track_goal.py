@@ -43,6 +43,7 @@ class TrackGoal(commands2.Command):
         nt_instance = ntcore.NetworkTableInstance.getDefault()
         turret_table = nt_instance.getTable("turret_table")
         tracking_table = nt_instance.getTable("tracking_table")
+        state_table = nt_instance.getTable("state_table")
 
         self.current_relative_output_position_entry = turret_table.getDoubleTopic("cur_rel_angle").publish()
         self.turret_pid_output_entry = turret_table.getDoubleTopic("turret_pid_output").publish()
@@ -50,6 +51,8 @@ class TrackGoal(commands2.Command):
         self.distance_entry = tracking_table.getDoubleTopic("distance_entry").publish()
         self.target_position_entry = tracking_table.getDoubleTopic("target_position_entry").publish()
         self.target_encoder_entry = tracking_table.getDoubleTopic("target_encoder_entry").publish()
+
+        self.is_tracking_state = state_table.getDoubleTopic("is_tracking").publish()
 
     def initialize(self) -> None:
         ally = DriverStation.getAlliance() # DriverStation.getAlliance()
@@ -98,7 +101,7 @@ class TrackGoal(commands2.Command):
 
         self.distance_entry.set(current_distance)
         self.target_position_entry.set(target_position)
-
+        self.is_tracking_state.set(True)
 
     def isFinished(self) -> bool:
         return False
@@ -106,3 +109,4 @@ class TrackGoal(commands2.Command):
     def end(self, interrupted: bool) -> None:
         self.turret_sub.set_turret_speed(0)
         self.turret_sub.set_hood_speed(0)
+        self.is_tracking_state.set(False)
