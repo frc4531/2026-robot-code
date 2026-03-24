@@ -10,9 +10,8 @@ from wpimath.controller import PIDController, ProfiledPIDControllerRadians, Holo
 from wpimath.geometry import Pose2d, Rotation2d, Translation2d
 from wpimath.trajectory import TrajectoryConfig, TrajectoryGenerator
 
-from commands.climber_down import ClimberDown
-from commands.climber_up import ClimberUp
 from commands.drive_command import DriveCommand
+from commands.drive_to_encoder_pos import DriveToEncoderPos
 from commands.drive_turn_to_angle import DriveTurnToAngle
 from commands.extension_to_position import ExtensionToPosition
 from commands.hood_and_turret_to_positions import HoodAndTurretToPositions
@@ -30,7 +29,6 @@ from commands.turret_right import TurretRight
 from commands.turret_to_position import TurretToPosition
 from constants.position_constants import PositionConstants
 from constants.swerve_constants import OIConstants, AutoConstants, DriveConstants
-from subsystems.climber_subsystem import ClimberSubsystem
 from subsystems.drive_subsystem import DriveSubsystem
 from subsystems.extension_subsystem import ExtensionSubsystem
 from subsystems.hopper_subsystem import HopperSubsystem
@@ -38,6 +36,8 @@ from subsystems.shooter_subsystem import ShooterSubsystem
 from subsystems.turret_subsystem import TurretSubsystem
 from subsystems.vision_subsystem import VisionSubsystem
 from subsystems.intake_subsystem import IntakeSubsystem
+
+from constants.position_constants import AutoPosConstants
 
 
 class RobotContainer:
@@ -56,7 +56,6 @@ class RobotContainer:
         self.shooter_subsystem = ShooterSubsystem()
         self.hopper_subsystem = HopperSubsystem()
         self.turret_subsystem = TurretSubsystem()
-        self.climber_subsystem = ClimberSubsystem()
         self.extension_subsystem = ExtensionSubsystem()
 
         # The driver's controller
@@ -169,14 +168,6 @@ class RobotContainer:
                 ExtensionToPosition(self.extension_subsystem, 0.324),
                 )
             ).repeatedly()
-        )
-        # Climber Up
-        commands2.button.JoystickButton(self.driver_controller, 5).whileTrue(
-            ClimberUp(self.climber_subsystem)
-        )
-        # Climber Down
-        commands2.button.JoystickButton(self.driver_controller, 10).whileTrue(
-            ClimberDown(self.climber_subsystem)
         )
     def periodic(self):
         self.ntcore.putBoolean("LED_TrackingHub", False)
@@ -456,30 +447,8 @@ class RobotContainer:
             case self.middle_depot:
                 return waitSeconds(1)
             case self.test_auto:
-                return commands2.SequentialCommandGroup(
-                    commands2.InstantCommand(
-                        self.drive_subsystem.reset_odometry(Pose2d(0, 0, self.drive_subsystem.get_heading())),
-                        self.drive_subsystem),
-                    test_trajectory_command.andThen(
-                        InputDrive(self.drive_subsystem, 0, 0, 0)
-                    )
-                )
-            case self.left_trajectory:
-                return commands2.SequentialCommandGroup(
-                    commands2.InstantCommand(
-                        self.drive_subsystem.reset_odometry(Pose2d(0, 0, self.drive_subsystem.get_heading())),
-                        self.drive_subsystem),
-                    left_trajectory_command.andThen(
-                        InputDrive(self.drive_subsystem, 0, 0, 0)
-                    )
-                )
-            case self.right_trajectory:
-                return commands2.SequentialCommandGroup(
-                    commands2.InstantCommand(self.drive_subsystem.reset_odometry(Pose2d(0, 0, self.drive_subsystem.get_heading())),
-                    self.drive_subsystem),
-                        right_trajectory_command.andThen(
-                            InputDrive(self.drive_subsystem, 0, 0, 0)
-                        )
-                    )
+                return DriveToEncoderPos(self.drive_subsystem, 0, 10, 0.6, 0.01)
             case _:
                 return waitSeconds(1)
+
+        # return DriveToEncoderPos(self.drive_subsystem, AutoPosConstants.kLeftSweepXTransition, AutoPosConstants.kLeftSweepYTransition, AutoPosConstants.kMaxSpeed, AutoPosConstants.kTargetThreshold)

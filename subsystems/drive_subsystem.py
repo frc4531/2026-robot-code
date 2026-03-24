@@ -3,6 +3,7 @@ import typing
 
 import navx
 import ntcore
+import rev
 import wpilib
 
 from commands2 import Subsystem
@@ -80,6 +81,7 @@ class DriveSubsystem(Subsystem):
 
         self.heading_entry = drive_table.getDoubleTopic("drive_train_heading").publish()
         self.get_pose_entry = drive_table.getDoubleArrayTopic("drive_train_pose").publish()
+        self.front_left_in_feet_entry = drive_table.getDoubleTopic("front_left_in_feet").publish()
 
     def periodic(self) -> None:
         # Update the odometry in the periodic block
@@ -96,6 +98,8 @@ class DriveSubsystem(Subsystem):
         self.heading_entry.set(self.get_heading())
         pose_array = [float(self.get_pose().X()), float(self.get_pose().Y()), float(self.get_pose().rotation().degrees())]
         self.get_pose_entry.set(pose_array)
+
+        self.front_left_in_feet_entry.set(self.front_left.get_position().distance_ft)
 
     def get_pose(self) -> Pose2d:
         """Returns the currently-estimated pose of the robot.
