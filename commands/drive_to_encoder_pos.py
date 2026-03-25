@@ -59,6 +59,20 @@ class DriveToEncoderPos(commands2.Command):
 
         self.drive_sub.drive(x_speed, y_speed, rot_speed, False, False)
 
+        # self.drive_sub.drive(
+        #     (
+        #         (-self.y_speed * math.cos(self.drive_sub.get_heading() * (math.pi / 180))) +
+        #         (self.x_speed * math.sin(self.drive_sub.get_heading() * (math.pi / 180)))
+        #     ),
+        #     -(
+        #         (self.y_speed * math.sin(self.drive_sub.get_heading() * (math.pi / 180))) +
+        #         (self.x_speed * math.cos(self.drive_sub.get_heading() * (math.pi / 180)))
+        #     ),
+        #     rot_speed,
+        #     False,
+        #     False,
+        # )
+
         self.target_distance_entry.set(self.real_distance)
 
     def isFinished(self) -> bool:
