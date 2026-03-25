@@ -450,30 +450,30 @@ class RobotContainer:
                 return waitSeconds(1)
             case self.test_auto:
                 return commands2.SequentialCommandGroup(
-                    ParallelDeadlineGroup(
-                        waitSeconds(0.1),
-                        commands2.InstantCommand(self.drive_subsystem.reset_odometry(Pose2d(0, 0, self.drive_subsystem.get_heading())))
-                    ),
-                    DriveToEncoderPos(self.drive_subsystem, 0, 0.5, -90, 9.75, 0.01),
+                    # ParallelDeadlineGroup(
+                    #     waitSeconds(0.1),
+                    #     commands2.InstantCommand(self.drive_subsystem.reset_odometry(Pose2d(0, 0, self.drive_subsystem.get_heading())))
+                    # ),
+                    DriveToEncoderPos(self.drive_subsystem, 0, -0.5, -90, 9.75, 0.01),
                     commands2.ParallelDeadlineGroup(
-                        DriveToEncoderPos(self.drive_subsystem, -0.2, 0, -90, 10, 0.01),
+                        DriveToEncoderPos(self.drive_subsystem, 0.2, 0, -90, 10, 0.01),
                         IntakeIn(self.intake_subsystem),
                     ),
-                    ParallelDeadlineGroup(
-                        waitSeconds(0.1),
-                        commands2.InstantCommand(self.drive_subsystem.reset_encoders())
-                    ),
-                    DriveToEncoderPos(self.drive_subsystem, 0.2, 0, -90, 10, 0.01),
+                    # ParallelDeadlineGroup(
+                    #     waitSeconds(0.1),
+                    #     commands2.InstantCommand(self.drive_subsystem.reset_encoders())
+                    # ),
+                    DriveToEncoderPos(self.drive_subsystem, -0.2, 0, -90, 10, 0.01),
                     commands2.ParallelDeadlineGroup(
                         waitSeconds(1),
                         DriveTurnToAngle(self.drive_subsystem, 180),
                     ),
-                    DriveToEncoderPos(self.drive_subsystem, 0, 0.5, 180, 20, 0.01),
-                    ParallelDeadlineGroup(
-                        waitSeconds(0.1),
-                        commands2.InstantCommand(self.drive_subsystem.reset_encoders())
-                    ),
-                    DriveToEncoderPos(self.drive_subsystem, 0.3, 0, 180, 5, 0.01),
+                    DriveToEncoderPos(self.drive_subsystem, 0, -0.5, 180, 20, 0.01),
+                    # ParallelDeadlineGroup(
+                    #     waitSeconds(0.1),
+                    #     commands2.InstantCommand(self.drive_subsystem.reset_encoders())
+                    # ),
+                    DriveToEncoderPos(self.drive_subsystem, -0.3, 0, 180, 5, 0.01),
                     commands2.ParallelDeadlineGroup(
                         WaitCommand(0.75),
                         TrackGoal(self.turret_subsystem, self.vision_subsystem),
