@@ -12,18 +12,20 @@ import ntcore
 
 class DriveToEncoderPos(commands2.Command):
 
-    def __init__(self, drive_sub: DriveSubsystem, x_target_encoder, y_target_encoder, max_speed, target_threshold) -> None:
+    def __init__(self, drive_sub: DriveSubsystem, x_speed, y_speed, target_angle, target_distance, target_threshold) -> None:
         super().__init__()
 
-        self.x_target_encoder = x_target_encoder
-        self.y_target_encoder = y_target_encoder
+        self.x_speed = x_speed
+        self.y_speed = y_speed
 
-        self.target_angle = 0
+        self.target_distance = target_distance
 
-        self.max_speed = max_speed
+        self.target_angle = target_angle
+
         self.target_threshold = target_threshold
 
         self.real_distance = 0
+        self.current_distance = 0
 
         self.drive_sub = drive_sub
 
@@ -31,7 +33,8 @@ class DriveToEncoderPos(commands2.Command):
 
         self.x_drive_pid_controller = PIDController(0.2, 0, 0)
         self.y_drive_pid_controller = PIDController(0.2, 0, 0)
-        self.rot_pid_controller = PIDController(0.05, 0, 0)
+        self.rot_pid_controller = PIDController(0.04, 0, 0)
+        self.rot_pid_controller.enableContinuousInput(-180, 180)
 
         self.x_drive_pid_controller.setTolerance(target_threshold)
         self.x_drive_pid_controller.setTolerance(target_threshold)
@@ -44,43 +47,23 @@ class DriveToEncoderPos(commands2.Command):
     def initialize(self):
         self.drive_sub.reset_encoders()
 
-        self.target_angle = self.drive_sub.get_heading()
-
-    def execute(self) -> None:
-        direction_rot = math.atan2(self.y_target_encoder, self.x_target_encoder)
-
-        self.x_drive_pid_controller.setSetpoint(self.x_target_encoder)
-        self.y_drive_pid_controller.setSetpoint(self.y_target_encoder)
         self.rot_pid_controller.setSetpoint(self.target_angle)
 
-        x_speed = self.x_drive_pid_controller.calculate(float(abs(self.drive_sub.front_left.get_position().distance_ft)) * math.cos(direction_rot))
-        y_speed = self.y_drive_pid_controller.calculate(float(abs(self.drive_sub.front_left.get_position().distance_ft)) * math.sin(direction_rot))
-        rot_speed = self.rot_pid_controller.calculate(self.drive_sub.get_heading())
+    def execute(self) -> None:
+        self.current_distance = abs(self.drive_sub.front_left.get_position().distance_ft)
 
-        if self.max_speed > x_speed > -self.max_speed:
-            x_speed_limited = x_speed
-        elif self.max_speed < x_speed:
-            x_speed_limited = self.max_speed
-        elif -self.max_speed > x_speed:
-            x_speed_limited = -self.max_speed
-        else:
-            x_speed_limited = 0
+        rot_speed = -self.rot_pid_controller.calculate(self.drive_sub.get_heading())
 
-        if self.max_speed > y_speed > -self.max_speed:
-            y_speed_limited = y_speed
-        elif self.max_speed < y_speed:
-            y_speed_limited = self.max_speed
-        elif -self.max_speed > y_speed:
-            y_speed_limited = -self.max_speed
-        else:
-            y_speed_limited = 0
+        x_speed = (-self.y_speed * math.cos(self.drive_sub.get_heading() * (math.pi / 180))) + (self.x_speed * math.sin(self.drive_sub.get_heading() * (math.pi / 180)))
+        y_speed = (self.y_speed * math.sin(self.drive_sub.get_heading() * (math.pi / 180))) + (self.x_speed * math.cos(self.drive_sub.get_heading() * (math.pi / 180)))
 
-        self.drive_sub.drive(x_speed_limited, y_speed_limited, rot_speed, False, False)
+        self.drive_sub.drive(x_speed, y_speed, rot_speed, False, False)
 
         self.target_distance_entry.set(self.real_distance)
 
     def isFinished(self) -> bool:
-        return self.x_drive_pid_controller.atSetpoint() and self.y_drive_pid_controller.atSetpoint()
+        return self.target_distance + self.target_threshold < self.current_distance
 
     def end(self, interrupted: bool) -> None:
         self.drive_sub.drive(0, 0, 0, False, False)
+        self.drive_sub.reset_encoders()

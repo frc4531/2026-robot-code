@@ -3,12 +3,14 @@ import math
 import ntcore
 import wpilib
 import commands2
-from commands2 import WaitCommand
+import wpimath
+from commands2 import WaitCommand, ParallelDeadlineGroup
 from commands2.cmd import waitSeconds
 
 from wpimath.controller import PIDController, ProfiledPIDControllerRadians, HolonomicDriveController
 from wpimath.geometry import Pose2d, Rotation2d, Translation2d
 from wpimath.trajectory import TrajectoryConfig, TrajectoryGenerator
+from wpimath.units import rotationsToDegrees
 
 from commands.drive_command import DriveCommand
 from commands.drive_to_encoder_pos import DriveToEncoderPos
@@ -101,7 +103,7 @@ class RobotContainer:
         wpilib.SmartDashboard.putData("Auto Chooser", self.chooser)
 
         # self.drive_subsystem.gyro.reset()
-        self.drive_subsystem.reset_odometry(Pose2d(0, 0, Rotation2d.fromDegrees(0)))
+        # self.drive_subsystem.reset_odometry(Pose2d(0, 0, Rotation2d.fromDegrees(0)))
 
     def configure_button_bindings(self) -> None:
         """
@@ -123,11 +125,11 @@ class RobotContainer:
         )
         # Hopper Extension Out
         commands2.button.JoystickButton(self.operator_controller, 7).whileTrue(
-            ExtensionToPosition(self.extension_subsystem, 0.324)
+            ExtensionToPosition(self.extension_subsystem, PositionConstants.kOutHopperExtension)
         )
         # Hopper Extension In
         commands2.button.JoystickButton(self.operator_controller, 8).whileTrue(
-            ExtensionToPosition(self.extension_subsystem, 0.14)
+            ExtensionToPosition(self.extension_subsystem, PositionConstants.kInHopperExtension)
         )
         # Shooter Off
         commands2.button.JoystickButton(self.operator_controller, 9).toggleOnTrue(
@@ -161,11 +163,11 @@ class RobotContainer:
             commands2.SequentialCommandGroup(
                 commands2.ParallelDeadlineGroup(
                     WaitCommand(1),
-                    ExtensionToPosition(self.extension_subsystem, 0.18),
+                    ExtensionToPosition(self.extension_subsystem, (PositionConstants.kInHopperExtension + 0.1)),
                 ),
             commands2.ParallelDeadlineGroup(
                 WaitCommand(1),
-                ExtensionToPosition(self.extension_subsystem, 0.324),
+                ExtensionToPosition(self.extension_subsystem, PositionConstants.kOutHopperExtension),
                 )
             ).repeatedly()
         )
@@ -381,11 +383,11 @@ class RobotContainer:
                         commands2.SequentialCommandGroup(
                             commands2.ParallelDeadlineGroup(
                                 WaitCommand(1),
-                                ExtensionToPosition(self.extension_subsystem, 0.14),
+                                ExtensionToPosition(self.extension_subsystem, PositionConstants.kInHopperExtension),
                             ),
                             commands2.ParallelDeadlineGroup(
                                 WaitCommand(1),
-                                ExtensionToPosition(self.extension_subsystem, 0.324),
+                                ExtensionToPosition(self.extension_subsystem, PositionConstants.kOutHopperExtension),
                             )
                         ).repeatedly(),
                         )
@@ -447,7 +449,54 @@ class RobotContainer:
             case self.middle_depot:
                 return waitSeconds(1)
             case self.test_auto:
-                return DriveToEncoderPos(self.drive_subsystem, 0, 10, 0.6, 0.01)
+                return commands2.SequentialCommandGroup(
+                    ParallelDeadlineGroup(
+                        waitSeconds(0.1),
+                        commands2.InstantCommand(self.drive_subsystem.reset_odometry(Pose2d(0, 0, self.drive_subsystem.get_heading())))
+                    ),
+                    DriveToEncoderPos(self.drive_subsystem, 0, 0.5, -90, 9.75, 0.01),
+                    commands2.ParallelDeadlineGroup(
+                        DriveToEncoderPos(self.drive_subsystem, -0.2, 0, -90, 10, 0.01),
+                        IntakeIn(self.intake_subsystem),
+                    ),
+                    ParallelDeadlineGroup(
+                        waitSeconds(0.1),
+                        commands2.InstantCommand(self.drive_subsystem.reset_encoders())
+                    ),
+                    DriveToEncoderPos(self.drive_subsystem, 0.2, 0, -90, 10, 0.01),
+                    commands2.ParallelDeadlineGroup(
+                        waitSeconds(1),
+                        DriveTurnToAngle(self.drive_subsystem, 180),
+                    ),
+                    DriveToEncoderPos(self.drive_subsystem, 0, 0.5, 180, 20, 0.01),
+                    ParallelDeadlineGroup(
+                        waitSeconds(0.1),
+                        commands2.InstantCommand(self.drive_subsystem.reset_encoders())
+                    ),
+                    DriveToEncoderPos(self.drive_subsystem, 0.3, 0, 180, 5, 0.01),
+                    commands2.ParallelDeadlineGroup(
+                        WaitCommand(0.75),
+                        TrackGoal(self.turret_subsystem, self.vision_subsystem),
+                        ShooterToVelocity(self.shooter_subsystem, 3000)
+                    ),
+                    commands2.ParallelDeadlineGroup(
+                        WaitCommand(8),
+                        TrackGoal(self.turret_subsystem, self.vision_subsystem),
+                        ShooterToVelocity(self.shooter_subsystem, 3000),
+                        HopperOut(self.hopper_subsystem),
+                        IntakeIn(self.intake_subsystem),
+                        commands2.SequentialCommandGroup(
+                            commands2.ParallelDeadlineGroup(
+                                WaitCommand(1),
+                                ExtensionToPosition(self.extension_subsystem, 0.14),
+                            ),
+                            commands2.ParallelDeadlineGroup(
+                                WaitCommand(1),
+                                ExtensionToPosition(self.extension_subsystem, 0.324),
+                            )
+                        ).repeatedly(),
+                    )
+                )
             case _:
                 return waitSeconds(1)
 

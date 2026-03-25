@@ -20,5 +20,8 @@ class ExtensionToPosition(commands2.PIDCommand):
             extension_sub
         )
 
+    def initialize(self) -> None:
+        self.getController().enableContinuousInput(0, 1)
+
     def isFinished(self) -> bool:
         return False

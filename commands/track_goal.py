@@ -31,7 +31,7 @@ class TrackGoal(commands2.Command):
         self.close_distance = 1.0
         self.far_distance = 4.75
         self.close_encoder = 0.9
-        self.far_encoder = -13.0
+        self.far_encoder = -14.0
 
         self.angle_velocity_adjustment_controller = PIDController(0, 0, 0)
         self.distance_velocity_adjustment_controller = PIDController(0, 0, 0)
@@ -58,7 +58,7 @@ class TrackGoal(commands2.Command):
         ally = DriverStation.getAlliance() # DriverStation.getAlliance()
         if ally is not None:
             if ally == DriverStation.Alliance.kRed:
-                self.target_x_coord = 12.25 #4.035
+                self.target_x_coord = 11.875 #4.035
                 self.target_y_coord = 4.035 #11.915
             elif ally == DriverStation.Alliance.kBlue:
                 self.target_x_coord = 4.626 #4.035
