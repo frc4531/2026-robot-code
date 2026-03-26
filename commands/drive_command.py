@@ -73,6 +73,6 @@ class DriveCommand(commands2.Command):
             0,
             0,
             0,
-            True,
-            True,
+            False,
+            False,
         )

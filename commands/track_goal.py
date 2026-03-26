@@ -31,7 +31,7 @@ class TrackGoal(commands2.Command):
         self.close_distance = 1.0
         self.far_distance = 4.75
         self.close_encoder = 0.9
-        self.far_encoder = -14.0
+        self.far_encoder = -13.0
 
         self.angle_velocity_adjustment_controller = PIDController(0, 0, 0)
         self.distance_velocity_adjustment_controller = PIDController(0, 0, 0)

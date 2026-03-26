@@ -67,7 +67,7 @@ class DriveSubsystem(Subsystem):
         # Odometry class for tracking robot pose
         self.odometry = SwerveDrive4Odometry(
             DriveConstants.kDriveKinematics,
-            Rotation2d.fromDegrees(self.gyro.getAngle()),
+            Rotation2d.fromDegrees(self.get_heading()),
             (
                 self.front_left.get_position(),
                 self.front_right.get_position(),
@@ -80,6 +80,7 @@ class DriveSubsystem(Subsystem):
         drive_table = nt_instance.getTable("drive_table")
 
         self.heading_entry = drive_table.getDoubleTopic("drive_train_heading").publish()
+        self.angle_entry = drive_table.getDoubleTopic("drive_train_angle").publish()
         self.get_pose_entry = drive_table.getDoubleArrayTopic("drive_train_pose").publish()
         self.front_left_in_feet_entry = drive_table.getDoubleTopic("front_left_in_feet").publish()
 
@@ -96,6 +97,7 @@ class DriveSubsystem(Subsystem):
         )
 
         self.heading_entry.set(self.get_heading())
+        self.angle_entry.set(self.gyro.getAngle())
         pose_array = [float(self.get_pose().X()), float(self.get_pose().Y()), float(self.get_pose().rotation().degrees())]
         self.get_pose_entry.set(pose_array)
 
@@ -219,7 +221,7 @@ class DriveSubsystem(Subsystem):
                 x_speed_delivered,
                 y_speed_delivered,
                 rot_delivered,
-                Rotation2d.fromDegrees(self.gyro.getAngle()),
+                Rotation2d.fromDegrees(self.get_heading()),
             )
             if field_relative
             else ChassisSpeeds(x_speed_delivered, y_speed_delivered, rot_delivered)

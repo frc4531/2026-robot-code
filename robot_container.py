@@ -154,7 +154,7 @@ class RobotContainer:
             ShooterToVelocity(self.shooter_subsystem, 6500)
         )
         commands2.button.JoystickButton(self.operator_controller, 13).onTrue(
-            ExtensionToPosition(self.extension_subsystem, 0.14)
+            ExtensionToPosition(self.extension_subsystem, PositionConstants.kInHopperExtension)
         )
 
         # -- DRIVER CONTROL BLOCK --
@@ -163,7 +163,7 @@ class RobotContainer:
             commands2.SequentialCommandGroup(
                 commands2.ParallelDeadlineGroup(
                     WaitCommand(1),
-                    ExtensionToPosition(self.extension_subsystem, (PositionConstants.kInHopperExtension + 0.1)),
+                    ExtensionToPosition(self.extension_subsystem, PositionConstants.kInHopperExtension),
                 ),
             commands2.ParallelDeadlineGroup(
                 WaitCommand(1),
@@ -340,37 +340,43 @@ class RobotContainer:
                     )
             case self.left_one_sweep:
                 return commands2.SequentialCommandGroup(
+                    # ParallelDeadlineGroup(
+                    #     waitSeconds(0.1),
+                    #     commands2.InstantCommand(self.drive_subsystem.reset_odometry(Pose2d(0, 0, self.drive_subsystem.get_heading())))
+                    # ),
+                    DriveToEncoderPos(self.drive_subsystem, 0, -0.5, 90, 9.75, 0.01),
+                    # waitSeconds(0.05),
                     commands2.ParallelDeadlineGroup(
-                        WaitCommand(1.2),
-                        InputDrive(self.drive_subsystem, -0.9, 0, 0)
-                    ),
-                    commands2.ParallelDeadlineGroup(
-                        WaitCommand(0.4),
-                        InputDrive(self.drive_subsystem, 0, 0.9, 0)
-                    ),
-                    commands2.ParallelDeadlineGroup(
-                        WaitCommand(1),
-                        DriveTurnToAngle(self.drive_subsystem, 90)
-                    ),
-                    commands2.ParallelDeadlineGroup(
-                        WaitCommand(4),
-                        InputDrive(self.drive_subsystem, -0.2, 0, 0),
+                        DriveToEncoderPos(self.drive_subsystem, 0.2, 0, 90, 10, 0.01),
                         IntakeIn(self.intake_subsystem),
+                        ExtensionToPosition(self.extension_subsystem, PositionConstants.kOutHopperExtension),
                     ),
+                    waitSeconds(0.05),
+                    # ParallelDeadlineGroup(
+                    #     waitSeconds(0.1),
+                    #     commands2.InstantCommand(self.drive_subsystem.reset_encoders())
+                    # ),
+                    DriveToEncoderPos(self.drive_subsystem, -0.2, 0, 90, 10, 0.01),
+                    waitSeconds(0.3),
                     commands2.ParallelDeadlineGroup(
-                        WaitCommand(1),
-                        DriveTurnToAngle(self.drive_subsystem, -90)
+                        waitSeconds(1),
+                        DriveTurnToAngle(self.drive_subsystem, 180),
                     ),
+                    waitSeconds(0.05),
+                    DriveToEncoderPos(self.drive_subsystem, 0, -0.5, 180, 16, 0.01),
+                    # ParallelDeadlineGroup(
+                    #     waitSeconds(0.1),
+                    #     commands2.InstantCommand(self.drive_subsystem.reset_encoders())
+                    # ),
+                    waitSeconds(0.05),
                     commands2.ParallelDeadlineGroup(
-                        WaitCommand(2),
-                        InputDrive(self.drive_subsystem, -0.5, 0, 0)
+                        waitSeconds(1),
+                        DriveTurnToAngle(self.drive_subsystem, -90),
                     ),
+                    DriveToEncoderPos(self.drive_subsystem, 0.3, 0, -90, 5, 0.01),
+                    waitSeconds(0.05),
                     commands2.ParallelDeadlineGroup(
-                        WaitCommand(2),
-                        InputDrive(self.drive_subsystem, 0, -0.9, 0)
-                    ),
-                    commands2.ParallelDeadlineGroup(
-                        WaitCommand(2),
+                        WaitCommand(0.25),
                         TrackGoal(self.turret_subsystem, self.vision_subsystem),
                         ShooterToVelocity(self.shooter_subsystem, 3000)
                     ),
@@ -390,92 +396,43 @@ class RobotContainer:
                                 ExtensionToPosition(self.extension_subsystem, PositionConstants.kOutHopperExtension),
                             )
                         ).repeatedly(),
-                        )
                     )
+                )
             case self.right_one_sweep:
-                return commands2.SequentialCommandGroup(
-                        commands2.ParallelDeadlineGroup(
-                            WaitCommand(1),
-                            InputDrive(self.drive_subsystem, 0, 0.9, 0)
-                        ),
-                        commands2.ParallelDeadlineGroup(
-                            WaitCommand(0.5),
-                            InputDrive(self.drive_subsystem, -0.9, 0, 0)
-                        ),
-                        commands2.ParallelDeadlineGroup(
-                            WaitCommand(2.5),
-                            InputDrive(self.drive_subsystem, -0.2, 0, 0),
-                            IntakeIn(self.intake_subsystem),
-                        ),
-                        commands2.ParallelDeadlineGroup(
-                            WaitCommand(2.5),
-                            InputDrive(self.drive_subsystem, 0.4, 0, 0),
-                        ),
-                        commands2.ParallelDeadlineGroup(
-                            WaitCommand(2),
-                            InputDrive(self.drive_subsystem, 0, -0.9, 0),
-                        ),
-                        commands2.ParallelDeadlineGroup(
-                            WaitCommand(0.6),
-                            InputDrive(self.drive_subsystem, -0.5, 0, 0),
-                        ),
-                        commands2.ParallelDeadlineGroup(
-                            WaitCommand(0.5),
-                            DriveTurnToAngle(self.drive_subsystem, 45),
-                        ),
-                        commands2.ParallelDeadlineGroup(
-                            WaitCommand(2),
-                            TrackGoal(self.turret_subsystem, self.vision_subsystem),
-                            ShooterToVelocity(self.shooter_subsystem, 3000)
-                        ),
-                        commands2.ParallelDeadlineGroup(
-                            WaitCommand(8),
-                            TrackGoal(self.turret_subsystem, self.vision_subsystem),
-                            ShooterToVelocity(self.shooter_subsystem, 3000),
-                            HopperOut(self.hopper_subsystem),
-                            IntakeIn(self.intake_subsystem),
-                            commands2.SequentialCommandGroup(
-                                commands2.ParallelDeadlineGroup(
-                                    WaitCommand(1),
-                                    ExtensionToPosition(self.extension_subsystem, 0.14),
-                                ),
-                                commands2.ParallelDeadlineGroup(
-                                    WaitCommand(1),
-                                    ExtensionToPosition(self.extension_subsystem, 0.324),
-                                )
-                            ).repeatedly(),
-                        )
-                    )
-            case self.middle_depot:
-                return waitSeconds(1)
-            case self.test_auto:
                 return commands2.SequentialCommandGroup(
                     # ParallelDeadlineGroup(
                     #     waitSeconds(0.1),
                     #     commands2.InstantCommand(self.drive_subsystem.reset_odometry(Pose2d(0, 0, self.drive_subsystem.get_heading())))
                     # ),
                     DriveToEncoderPos(self.drive_subsystem, 0, -0.5, -90, 9.75, 0.01),
+                    # waitSeconds(0.05),
                     commands2.ParallelDeadlineGroup(
-                        DriveToEncoderPos(self.drive_subsystem, 0.2, 0, -90, 10, 0.01),
+                        DriveToEncoderPos(self.drive_subsystem, -0.2, 0, -90, 10, 0.01),
                         IntakeIn(self.intake_subsystem),
+                        ExtensionToPosition(self.extension_subsystem, PositionConstants.kOutHopperExtension),
                     ),
+                    waitSeconds(0.05),
                     # ParallelDeadlineGroup(
                     #     waitSeconds(0.1),
                     #     commands2.InstantCommand(self.drive_subsystem.reset_encoders())
                     # ),
-                    DriveToEncoderPos(self.drive_subsystem, -0.2, 0, -90, 10, 0.01),
+                    DriveToEncoderPos(self.drive_subsystem, 0.2, 0, -90, 10, 0.01),
+                    waitSeconds(0.3),
                     commands2.ParallelDeadlineGroup(
                         waitSeconds(1),
                         DriveTurnToAngle(self.drive_subsystem, 180),
                     ),
-                    DriveToEncoderPos(self.drive_subsystem, 0, -0.5, 180, 20, 0.01),
+                    waitSeconds(0.05),
+                    DriveToEncoderPos(self.drive_subsystem, 0, -0.5, 180, 16, 0.01),
                     # ParallelDeadlineGroup(
                     #     waitSeconds(0.1),
                     #     commands2.InstantCommand(self.drive_subsystem.reset_encoders())
                     # ),
-                    DriveToEncoderPos(self.drive_subsystem, -0.3, 0, 180, 5, 0.01),
+                    waitSeconds(0.05),
+                    DriveToEncoderPos(self.drive_subsystem, 0.3, 0, 180, 5, 0.01),
+                    waitSeconds(0.05),
                     commands2.ParallelDeadlineGroup(
-                        WaitCommand(0.75),
+                        WaitCommand(0.25),
                         TrackGoal(self.turret_subsystem, self.vision_subsystem),
                         ShooterToVelocity(self.shooter_subsystem, 3000)
                     ),
@@ -488,15 +445,19 @@ class RobotContainer:
                         commands2.SequentialCommandGroup(
                             commands2.ParallelDeadlineGroup(
                                 WaitCommand(1),
-                                ExtensionToPosition(self.extension_subsystem, 0.14),
+                                ExtensionToPosition(self.extension_subsystem, PositionConstants.kInHopperExtension),
                             ),
                             commands2.ParallelDeadlineGroup(
                                 WaitCommand(1),
-                                ExtensionToPosition(self.extension_subsystem, 0.324),
+                                ExtensionToPosition(self.extension_subsystem, PositionConstants.kOutHopperExtension),
                             )
                         ).repeatedly(),
                     )
                 )
+            case self.middle_depot:
+                return waitSeconds(1)
+            case self.test_auto:
+                return waitSeconds(1)
             case _:
                 return waitSeconds(1)
 

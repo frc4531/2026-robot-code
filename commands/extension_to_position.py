@@ -9,7 +9,7 @@ class ExtensionToPosition(commands2.PIDCommand):
 
     def __init__(self, extension_sub: ExtensionSubsystem, target_position) -> None:
         super().__init__(
-            wpimath.controller.PIDController(1.25, 0, 0),
+            wpimath.controller.PIDController(1.75, 0, 0),
             # Close loop on absolute encoder
             lambda: extension_sub.get_extension_position(),
             # Set reference to target

@@ -76,4 +76,3 @@ class DriveToEncoderPos(commands2.Command):
 
     def end(self, interrupted: bool) -> None:
         self.drive_sub.drive(0, 0, 0, False, False)
-        self.drive_sub.reset_encoders()
