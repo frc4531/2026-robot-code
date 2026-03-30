@@ -7,7 +7,7 @@ from wpilib import SmartDashboard
 
 class LedSubsystem(SubsystemBase):
     # Create a new ArmSubsystem
-    led_buffer = 88
+    led_buffer = 22
 
     def __init__(self) -> None:
         super().__init__()
@@ -46,21 +46,21 @@ class LedSubsystem(SubsystemBase):
 
         blink_tracker = 0
 
-        if tracking_game_piece is True:
-            self.rainbow(10)
-        elif tracking_goal and shooter_on is False:
-            self.rgb_blink(0, 30)
-        elif tracking_goal and shooter_on is True:
-            self.pulse_all(100, 3)
-        elif not tracking_goal and shooter_on:
-            self.pulse_all(14, 30)
-        elif new_game_piece is True and self.blink_tracker < 50:
-            self.rgb_blink(60, 200)
-            self.blink_tracker = self.blink_tracker + 1
-        else:
-            self.pulse_along(14, 5)
-            self.blink_tracker = 0
-            SmartDashboard.putBoolean("LED_NewGamePiece", False)
+        # if tracking_game_piece is True:
+        #     self.rainbow(10)
+        # elif tracking_goal and shooter_on is False:
+        #     self.rgb_blink(0, 30)
+        # elif tracking_goal and shooter_on is True:
+        #     self.pulse_all(100, 3)
+        # elif not tracking_goal and shooter_on:
+        #     self.pulse_all(14, 30)
+        # elif new_game_piece is True and self.blink_tracker < 50:
+        #     self.rgb_blink(60, 200)
+        #     self.blink_tracker = self.blink_tracker + 1
+        # else:
+        self.pulse_along(90, 5)
+        self.blink_tracker = 0
+        SmartDashboard.putBoolean("LED_NewGamePiece", False)
 
         # Flash Green 20 times, quickly
         # if self.test == 0:

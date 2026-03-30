@@ -37,6 +37,9 @@ class ShooterSubsystem(SubsystemBase):
         self.left_shooter_config.closedLoop.feedForward.kV(self.ksV)
         self.left_shooter_config.closedLoop.outputRange(self.kMinOutput,self.kMaxOutput)
 
+        self.left_shooter_config.openLoopRampRate(0)
+        self.left_shooter_config.closedLoopRampRate(0)
+
         self.right_shooter_motor.configure(self.right_shooter_config,
                                         ResetMode.kResetSafeParameters,
                                         PersistMode.kPersistParameters)

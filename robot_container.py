@@ -34,6 +34,7 @@ from constants.swerve_constants import OIConstants, AutoConstants, DriveConstant
 from subsystems.drive_subsystem import DriveSubsystem
 from subsystems.extension_subsystem import ExtensionSubsystem
 from subsystems.hopper_subsystem import HopperSubsystem
+from subsystems.led_subsystem import LedSubsystem
 from subsystems.shooter_subsystem import ShooterSubsystem
 from subsystems.turret_subsystem import TurretSubsystem
 from subsystems.vision_subsystem import VisionSubsystem
@@ -59,6 +60,7 @@ class RobotContainer:
         self.hopper_subsystem = HopperSubsystem()
         self.turret_subsystem = TurretSubsystem()
         self.extension_subsystem = ExtensionSubsystem()
+        self.led_subsystem = LedSubsystem()
 
         # The driver's controller
         self.driver_controller = wpilib.Joystick(OIConstants.kDriverControllerPort)
@@ -143,17 +145,17 @@ class RobotContainer:
         commands2.button.JoystickButton(self.operator_controller, 12).whileTrue(
             HoodAndTurretToPositions(self.turret_subsystem, self.vision_subsystem, -14, -180)
         )
-        commands2.button.JoystickButton(self.operator_controller, 12).toggleOnTrue(
-            ShooterToVelocity(self.shooter_subsystem, 6500)
+        commands2.button.JoystickButton(self.operator_controller, 12).whileTrue(
+            ShooterToVelocity(self.shooter_subsystem, 3000)
         )
         # Defense Presets
         commands2.button.JoystickButton(self.operator_controller, 13).whileTrue(
             HoodAndTurretToPositions(self.turret_subsystem, self.vision_subsystem, -14, -180)
         )
-        commands2.button.JoystickButton(self.operator_controller, 13).toggleOnTrue(
+        commands2.button.JoystickButton(self.operator_controller, 13).whileTrue(
             ShooterToVelocity(self.shooter_subsystem, 6500)
         )
-        commands2.button.JoystickButton(self.operator_controller, 13).onTrue(
+        commands2.button.JoystickButton(self.operator_controller, 13).whileTrue(
             ExtensionToPosition(self.extension_subsystem, PositionConstants.kInHopperExtension)
         )
 
@@ -163,7 +165,7 @@ class RobotContainer:
             commands2.SequentialCommandGroup(
                 commands2.ParallelDeadlineGroup(
                     WaitCommand(1),
-                    ExtensionToPosition(self.extension_subsystem, PositionConstants.kInHopperExtension),
+                    ExtensionToPosition(self.extension_subsystem, PositionConstants.kInHopperAgitation),
                 ),
             commands2.ParallelDeadlineGroup(
                 WaitCommand(1),
@@ -328,11 +330,11 @@ class RobotContainer:
                         commands2.SequentialCommandGroup(
                             commands2.ParallelDeadlineGroup(
                                 WaitCommand(1),
-                                ExtensionToPosition(self.extension_subsystem, 0.14),
+                                ExtensionToPosition(self.extension_subsystem, PositionConstants.kInHopperAgitation),
                             ),
                             commands2.ParallelDeadlineGroup(
                                 WaitCommand(1),
-                                ExtensionToPosition(self.extension_subsystem, 0.324),
+                                ExtensionToPosition(self.extension_subsystem, PositionConstants.kOutHopperExtension),
                             )
                         ).repeatedly(),
 
@@ -347,7 +349,7 @@ class RobotContainer:
                     DriveToEncoderPos(self.drive_subsystem, 0, -0.5, 90, 9.75, 0.01),
                     # waitSeconds(0.05),
                     commands2.ParallelDeadlineGroup(
-                        DriveToEncoderPos(self.drive_subsystem, 0.2, 0, 90, 10, 0.01),
+                        DriveToEncoderPos(self.drive_subsystem, 0.2, 0, 90, 8.5, 0.01),
                         IntakeIn(self.intake_subsystem),
                         ExtensionToPosition(self.extension_subsystem, PositionConstants.kOutHopperExtension),
                     ),
@@ -356,10 +358,13 @@ class RobotContainer:
                     #     waitSeconds(0.1),
                     #     commands2.InstantCommand(self.drive_subsystem.reset_encoders())
                     # ),
-                    DriveToEncoderPos(self.drive_subsystem, -0.2, 0, 90, 10, 0.01),
-                    waitSeconds(0.3),
+                    commands2.ParallelRaceGroup(
+                        DriveToEncoderPos(self.drive_subsystem, -0.2, 0, 90, 8.5, 0.01),
+                        waitSeconds(5)
+                    ),
+                    waitSeconds(0.5),
                     commands2.ParallelDeadlineGroup(
-                        waitSeconds(1),
+                        waitSeconds(1.2),
                         DriveTurnToAngle(self.drive_subsystem, 180),
                     ),
                     waitSeconds(0.05),
@@ -407,7 +412,7 @@ class RobotContainer:
                     DriveToEncoderPos(self.drive_subsystem, 0, -0.5, -90, 9.75, 0.01),
                     # waitSeconds(0.05),
                     commands2.ParallelDeadlineGroup(
-                        DriveToEncoderPos(self.drive_subsystem, -0.2, 0, -90, 10, 0.01),
+                        DriveToEncoderPos(self.drive_subsystem, -0.2, 0, -90, 8.5, 0.01),
                         IntakeIn(self.intake_subsystem),
                         ExtensionToPosition(self.extension_subsystem, PositionConstants.kOutHopperExtension),
                     ),
@@ -416,10 +421,13 @@ class RobotContainer:
                     #     waitSeconds(0.1),
                     #     commands2.InstantCommand(self.drive_subsystem.reset_encoders())
                     # ),
-                    DriveToEncoderPos(self.drive_subsystem, 0.2, 0, -90, 10, 0.01),
-                    waitSeconds(0.3),
+                    commands2.ParallelRaceGroup(
+                        DriveToEncoderPos(self.drive_subsystem, 0.2, 0, -90, 8.5, 0.01),
+                        waitSeconds(5)
+                    ),
+                    waitSeconds(0.5),
                     commands2.ParallelDeadlineGroup(
-                        waitSeconds(1),
+                        waitSeconds(1.2),
                         DriveTurnToAngle(self.drive_subsystem, 180),
                     ),
                     waitSeconds(0.05),
@@ -445,7 +453,7 @@ class RobotContainer:
                         commands2.SequentialCommandGroup(
                             commands2.ParallelDeadlineGroup(
                                 WaitCommand(1),
-                                ExtensionToPosition(self.extension_subsystem, PositionConstants.kInHopperExtension),
+                                ExtensionToPosition(self.extension_subsystem, PositionConstants.kInHopperAgitation),
                             ),
                             commands2.ParallelDeadlineGroup(
                                 WaitCommand(1),
