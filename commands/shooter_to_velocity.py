@@ -32,8 +32,6 @@ class ShooterToVelocity(commands2.Command):
             self.near_shoot.set(True)
             self.far_shoot.set(False)
 
-
-
     def isFinished(self) -> bool:
         return False
 

@@ -23,6 +23,7 @@ from commands.hood_up import HoodUp
 from commands.hopper_out import HopperOut
 from commands.input_drive import InputDrive
 from commands.intake_in import IntakeIn
+from commands.intake_out import IntakeOut
 from commands.shooter_off import ShooterOff
 from commands.shooter_to_velocity import ShooterToVelocity
 from commands.track_goal import TrackGoal
@@ -117,6 +118,16 @@ class RobotContainer:
         # Intake In
         commands2.button.JoystickButton(self.operator_controller, 1).whileTrue(
             IntakeIn(self.intake_subsystem)
+        )
+        # Intake Out [OH CRAP! (the robot poops)]
+        commands2.button.JoystickButton(self.operator_controller, 2).whileTrue(
+            IntakeOut(self.intake_subsystem)
+        )
+        commands2.button.JoystickButton(self.operator_controller, 2).whileTrue(
+            ExtensionToPosition(self.extension_subsystem, PositionConstants.kInHopperExtension)
+        )
+        commands2.button.JoystickButton(self.operator_controller, 2).whileTrue(
+            IntakeOut(self.intake_subsystem)
         )
         # Hopper Out
         commands2.button.JoystickButton(self.operator_controller, 3).whileTrue(
