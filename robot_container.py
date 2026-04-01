@@ -20,6 +20,7 @@ from commands.hood_and_turret_to_positions import HoodAndTurretToPositions
 from commands.hood_down import HoodDown
 from commands.hood_to_positon import HoodToPosition
 from commands.hood_up import HoodUp
+from commands.hopper_backwards import HopperBackwards
 from commands.hopper_out import HopperOut
 from commands.input_drive import InputDrive
 from commands.intake_in import IntakeIn
@@ -127,7 +128,7 @@ class RobotContainer:
             ExtensionToPosition(self.extension_subsystem, PositionConstants.kInHopperExtension)
         )
         commands2.button.JoystickButton(self.operator_controller, 2).whileTrue(
-            IntakeOut(self.intake_subsystem)
+            HopperBackwards(self.hopper_subsystem)
         )
         # Hopper Out
         commands2.button.JoystickButton(self.operator_controller, 3).whileTrue(
@@ -154,10 +155,10 @@ class RobotContainer:
         )
         # Passing Presets
         commands2.button.JoystickButton(self.operator_controller, 12).whileTrue(
-            HoodAndTurretToPositions(self.turret_subsystem, self.vision_subsystem, -14, -180)
+            HoodAndTurretToPositions(self.turret_subsystem, self.vision_subsystem, -14, 90)
         )
         commands2.button.JoystickButton(self.operator_controller, 12).whileTrue(
-            ShooterToVelocity(self.shooter_subsystem, 3000)
+            ShooterToVelocity(self.shooter_subsystem, 4000)
         )
         # Defense Presets
         commands2.button.JoystickButton(self.operator_controller, 13).whileTrue(
@@ -183,6 +184,13 @@ class RobotContainer:
                 ExtensionToPosition(self.extension_subsystem, PositionConstants.kOutHopperExtension),
                 )
             ).repeatedly()
+        )
+        # Set wheels into X mode
+        commands2.button.JoystickButton(self.driver_controller, 2).whileTrue(
+            commands2.RunCommand(
+                lambda: self.drive_subsystem.set_x(),
+                self.drive_subsystem,
+            )
         )
     def periodic(self):
         self.ntcore.putBoolean("LED_TrackingHub", False)
