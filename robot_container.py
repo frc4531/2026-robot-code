@@ -154,21 +154,11 @@ class RobotContainer:
             TrackGoal(self.turret_subsystem, self.vision_subsystem)
         )
         # Passing Presets
-        commands2.button.JoystickButton(self.operator_controller, 12).whileTrue(
-            HoodAndTurretToPositions(self.turret_subsystem, self.vision_subsystem, -14, 90)
-        )
-        commands2.button.JoystickButton(self.operator_controller, 12).whileTrue(
-            ShooterToVelocity(self.shooter_subsystem, 4000)
-        )
-        # Defense Presets
         commands2.button.JoystickButton(self.operator_controller, 13).whileTrue(
             HoodAndTurretToPositions(self.turret_subsystem, self.vision_subsystem, -14, -180)
         )
         commands2.button.JoystickButton(self.operator_controller, 13).whileTrue(
-            ShooterToVelocity(self.shooter_subsystem, 6500)
-        )
-        commands2.button.JoystickButton(self.operator_controller, 13).whileTrue(
-            ExtensionToPosition(self.extension_subsystem, PositionConstants.kInHopperExtension)
+            ShooterToVelocity(self.shooter_subsystem, 4000)
         )
 
         # -- DRIVER CONTROL BLOCK --

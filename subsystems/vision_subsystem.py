@@ -57,21 +57,21 @@ class VisionSubsystem(SubsystemBase):
         self.left_a_entry = 0
         self.left_v_entry = 0
         self.left_id_entry = 0
-        self.left_blue_pos = 0
+        self.left_blue_pos = [0.0, 0.0]
 
         self.right_x_entry = 0
         self.right_y_entry = 0
         self.right_a_entry = 0
         self.right_v_entry = 0
         self.right_id_entry = 0
-        self.right_blue_pos = 0
+        self.right_blue_pos = [0.0, 0.0]
 
         self.turret_x_entry = 0
         self.turret_y_entry = 0
         self.turret_a_entry = 0
         self.turret_v_entry = 0
         self.turret_id_entry = 0
-        self.turret_blue_pos = 0
+        self.turret_blue_pos = [0.0, 0.0]
 
         self.turret_angle = 0
 
@@ -153,27 +153,47 @@ class VisionSubsystem(SubsystemBase):
         self.corrected_turret_x_coord_entry.set(self.corrected_turret_x_coord)
         self.corrected_turret_y_coord_entry.set(self.corrected_turret_y_coord)
 
-        # # Avg Info Estimator
-        # if self.left_v_entry == 1 and self.right_v_entry == 1:
-        #     self.avg_y_cord = (self.left_blue_pos[1] + self.right_blue_pos[1]) / 2
-        #     self.avg_x_cord = (self.left_blue_pos[0] + self.right_blue_pos[0]) / 2
-        #     self.avg_v_entry = 1
-        #     self.avg_id_entry = self.left_id_entry
-        # elif self.left_v_entry == 1 and self.right_v_entry == 0:
-        #     self.avg_y_cord = self.left_blue_pos[1]
-        #     self.avg_x_cord = self.left_blue_pos[0]
-        #     self.avg_v_entry = 1
-        #     self.avg_id_entry = self.left_id_entry
-        # elif self.left_v_entry == 0 and self.right_v_entry == 1:
-        #     self.avg_y_cord = self.right_blue_pos[1]
-        #     self.avg_x_cord = self.right_blue_pos[0]
-        #     self.avg_v_entry = 1
-        #     self.avg_id_entry = self.right_id_entry
-        # else:
-        #     self.avg_y_cord = -1
-        #     self.avg_x_cord = -1
-        #     self.avg_v_entry = -1
-        #     self.avg_id_entry = -1
+        # Avg Info Estimator
+        if self.left_v_entry == 1 and self.right_v_entry == 1 and self.side_v_entry == 0:
+            self.avg_y_cord = (self.left_blue_pos[1] + self.right_blue_pos[1]) / 2
+            self.avg_x_cord = (self.left_blue_pos[0] + self.right_blue_pos[0]) / 2
+            self.avg_v_entry = 2
+            self.avg_id_entry = self.left_id_entry
+        elif self.left_v_entry == 1 and self.right_v_entry == 1 and self.side_v_entry == 1:
+            self.avg_y_cord = (self.left_blue_pos[1] + self.right_blue_pos[1] + self.side_blue_pos[1]) / 3
+            self.avg_x_cord = (self.left_blue_pos[0] + self.right_blue_pos[0] + self.side_blue_pos[0]) / 3
+            self.avg_v_entry = 3
+            self.avg_id_entry = self.left_id_entry
+        elif self.left_v_entry == 0 and self.right_v_entry == 1 and self.side_v_entry == 1:
+            self.avg_y_cord = (self.right_blue_pos[1] + self.side_blue_pos[1]) / 2
+            self.avg_x_cord = (self.right_blue_pos[0] + self.side_blue_pos[0]) / 2
+            self.avg_v_entry = 2
+            self.avg_id_entry = self.right_id_entry
+        elif self.left_v_entry == 1 and self.right_v_entry == 0 and self.side_v_entry == 1:
+            self.avg_y_cord = (self.left_blue_pos[1] + self.side_blue_pos[1]) / 2
+            self.avg_x_cord = (self.left_blue_pos[0] + self.side_blue_pos[0]) / 2
+            self.avg_v_entry = 2
+            self.avg_id_entry = self.right_id_entry
+        elif self.left_v_entry == 1 and self.right_v_entry == 0 and self.side_v_entry == 0:
+            self.avg_y_cord = self.left_blue_pos[1]
+            self.avg_x_cord = self.left_blue_pos[0]
+            self.avg_v_entry = 1
+            self.avg_id_entry = self.left_id_entry
+        elif self.left_v_entry == 0 and self.right_v_entry == 1 and self.side_v_entry == 0:
+            self.avg_y_cord = self.right_blue_pos[1]
+            self.avg_x_cord = self.right_blue_pos[0]
+            self.avg_v_entry = 1
+            self.avg_id_entry = self.right_id_entry
+        elif self.left_v_entry == 0 and self.right_v_entry == 0 and self.side_v_entry == 1:
+            self.avg_y_cord = self.side_blue_pos[1]
+            self.avg_x_cord = self.side_blue_pos[0]
+            self.avg_v_entry = 1
+            self.avg_id_entry = self.side_id_entry
+        else:
+            self.avg_y_cord = -1
+            self.avg_x_cord = -1
+            self.avg_v_entry = -1
+            self.avg_id_entry = -1
 
         camera_amount = self.left_v_entry + self.right_v_entry + self.side_v_entry
 
