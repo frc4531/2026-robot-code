@@ -2,9 +2,9 @@ class PositionConstants:
     kXTurretOffset = -0.164
     kYTurretOffset = -0.127
 
-    kInHopperExtension = 0.158
-    kOutHopperExtension = 0.371
-    kInHopperAgitation = kInHopperExtension + 0.05
+    kInHopperExtension = 0.002
+    kOutHopperExtension = 0.209
+    kInHopperAgitation = kInHopperExtension + 0.01
 
 class AutoPosConstants:
     kLeftSweepXTransition = 0

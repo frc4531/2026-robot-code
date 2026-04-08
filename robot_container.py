@@ -23,6 +23,7 @@ from commands.hood_up import HoodUp
 from commands.hopper_backwards import HopperBackwards
 from commands.hopper_out import HopperOut
 from commands.input_drive import InputDrive
+from commands.intake_feeder import IntakeFeeder
 from commands.intake_in import IntakeIn
 from commands.intake_out import IntakeOut
 from commands.shooter_off import ShooterOff
@@ -135,8 +136,11 @@ class RobotContainer:
             HopperOut(self.hopper_subsystem)
         )
         commands2.button.JoystickButton(self.operator_controller, 3).whileTrue(
-            IntakeIn(self.intake_subsystem)
+            IntakeFeeder(self.intake_subsystem)
         )
+        # commands2.button.JoystickButton(self.operator_controller, 3).whileTrue(
+        #     ExtensionToPosition(self.extension_subsystem, PositionConstants.kInHopperAgitation)
+        # )
         # Hopper Extension Out
         commands2.button.JoystickButton(self.operator_controller, 7).whileTrue(
             ExtensionToPosition(self.extension_subsystem, PositionConstants.kOutHopperExtension)
@@ -170,7 +174,7 @@ class RobotContainer:
                     ExtensionToPosition(self.extension_subsystem, PositionConstants.kInHopperAgitation),
                 ),
             commands2.ParallelDeadlineGroup(
-                WaitCommand(1),
+                WaitCommand(0.15),
                 ExtensionToPosition(self.extension_subsystem, PositionConstants.kOutHopperExtension),
                 )
             ).repeatedly()
