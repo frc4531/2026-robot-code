@@ -77,7 +77,7 @@ class RobotContainer:
             DriveCommand(self.drive_subsystem)
         )
         self.turret_subsystem.setDefaultCommand(
-            HoodToPosition(self.turret_subsystem, 0.5)
+            HoodToPosition(self.turret_subsystem, -0.1)
         )
         self.shooter_subsystem.setDefaultCommand(
             ShooterToVelocity(self.shooter_subsystem, 3000)
@@ -167,20 +167,31 @@ class RobotContainer:
 
         # -- DRIVER CONTROL BLOCK --
         # Hopper Extension Ungelation (e ur e ur)
-        commands2.button.JoystickButton(self.driver_controller, 1).whileTrue(
+        commands2.button.JoystickButton(self.driver_controller, 2).whileTrue(
             commands2.SequentialCommandGroup(
                 commands2.ParallelDeadlineGroup(
-                    WaitCommand(1),
+                    WaitCommand(PositionConstants.kTimedAgitationIn),
                     ExtensionToPosition(self.extension_subsystem, PositionConstants.kInHopperAgitation),
                 ),
             commands2.ParallelDeadlineGroup(
-                WaitCommand(0.15),
+                WaitCommand(PositionConstants.kTimedAgitationOut),
                 ExtensionToPosition(self.extension_subsystem, PositionConstants.kOutHopperExtension),
                 )
             ).repeatedly()
         )
-        # Set wheels into X mode
-        commands2.button.JoystickButton(self.driver_controller, 2).whileTrue(
+        # Driver Feeder
+        commands2.button.JoystickButton(self.driver_controller, 1).whileTrue(
+            HopperOut(self.hopper_subsystem)
+        )
+        commands2.button.JoystickButton(self.driver_controller, 1).whileTrue(
+            IntakeFeeder(self.intake_subsystem)
+        )
+        # Driver Hopper Up
+        commands2.button.JoystickButton(self.driver_controller, 3).whileTrue(
+            ExtensionToPosition(self.extension_subsystem, PositionConstants.kInHopperExtension)
+        )
+        # Set wheels into X configuration
+        commands2.button.JoystickButton(self.driver_controller, 8).whileTrue(
             commands2.RunCommand(
                 lambda: self.drive_subsystem.set_x(),
                 self.drive_subsystem,
@@ -330,28 +341,35 @@ class RobotContainer:
             case self.shoot_preload:
                 return commands2.SequentialCommandGroup(
                     commands2.ParallelDeadlineGroup(
+                        WaitCommand(5),
+                        DriveToEncoderPos(self.drive_subsystem, 0.5, 0, 0, 5, 0.01)
+                    ),
+                    commands2.ParallelDeadlineGroup(
                         WaitCommand(2),
                         TrackGoal(self.turret_subsystem, self.vision_subsystem),
                         ShooterToVelocity(self.shooter_subsystem, 3000)
                     ),
                     commands2.ParallelDeadlineGroup(
-                        WaitCommand(8),
+                        WaitCommand(6),
                         TrackGoal(self.turret_subsystem, self.vision_subsystem),
                         ShooterToVelocity(self.shooter_subsystem, 3000),
                         HopperOut(self.hopper_subsystem),
                         IntakeIn(self.intake_subsystem),
                         commands2.SequentialCommandGroup(
                             commands2.ParallelDeadlineGroup(
-                                WaitCommand(1),
+                                WaitCommand(PositionConstants.kTimedAgitationIn),
                                 ExtensionToPosition(self.extension_subsystem, PositionConstants.kInHopperAgitation),
                             ),
                             commands2.ParallelDeadlineGroup(
-                                WaitCommand(1),
+                                WaitCommand(PositionConstants.kTimedAgitationOut),
                                 ExtensionToPosition(self.extension_subsystem, PositionConstants.kOutHopperExtension),
                             )
                         ).repeatedly(),
-
-                        )
+                        ),
+                    commands2.ParallelDeadlineGroup(
+                        WaitCommand(5),
+                        DriveToEncoderPos(self.drive_subsystem, -0.5, 0, 0, 4.5, 0.01)
+                    ),
                     )
             case self.left_one_sweep:
                 return commands2.SequentialCommandGroup(
@@ -406,11 +424,11 @@ class RobotContainer:
                         IntakeIn(self.intake_subsystem),
                         commands2.SequentialCommandGroup(
                             commands2.ParallelDeadlineGroup(
-                                WaitCommand(1),
+                                WaitCommand(PositionConstants.kTimedAgitationIn),
                                 ExtensionToPosition(self.extension_subsystem, PositionConstants.kInHopperExtension),
                             ),
                             commands2.ParallelDeadlineGroup(
-                                WaitCommand(1),
+                                WaitCommand(PositionConstants.kTimedAgitationOut),
                                 ExtensionToPosition(self.extension_subsystem, PositionConstants.kOutHopperExtension),
                             )
                         ).repeatedly(),
@@ -465,11 +483,11 @@ class RobotContainer:
                         IntakeIn(self.intake_subsystem),
                         commands2.SequentialCommandGroup(
                             commands2.ParallelDeadlineGroup(
-                                WaitCommand(1),
+                                WaitCommand(PositionConstants.kTimedAgitationIn),
                                 ExtensionToPosition(self.extension_subsystem, PositionConstants.kInHopperAgitation),
                             ),
                             commands2.ParallelDeadlineGroup(
-                                WaitCommand(1),
+                                WaitCommand(PositionConstants.kTimedAgitationOut),
                                 ExtensionToPosition(self.extension_subsystem, PositionConstants.kOutHopperExtension),
                             )
                         ).repeatedly(),

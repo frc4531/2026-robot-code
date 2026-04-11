@@ -6,6 +6,9 @@ class PositionConstants:
     kOutHopperExtension = 0.209
     kInHopperAgitation = kInHopperExtension + 0.01
 
+    kTimedAgitationIn = 1
+    kTimedAgitationOut = 0.15
+
 class AutoPosConstants:
     kLeftSweepXTransition = 0
     kLeftSweepYTransition = 10.7

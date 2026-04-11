@@ -28,10 +28,10 @@ class TrackGoal(commands2.Command):
         self.turret_pid_controller = PIDController(0.05, 0, 0)
         self.hood_controller = self.turret_sub.hood_pid_controller
 
-        self.close_distance = 1.0
-        self.far_distance = 4.75
-        self.close_encoder = 0.9
-        self.far_encoder = -13.5
+        self.close_distance = 1.4224
+        self.far_distance = 5 #5.2832
+        self.close_encoder = -0.1
+        self.far_encoder = -17.5 #-18
 
         self.angle_velocity_adjustment_controller = PIDController(0, 0, 0)
         self.distance_velocity_adjustment_controller = PIDController(0, 0, 0)
