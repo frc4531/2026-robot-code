@@ -29,6 +29,7 @@ from commands.intake_out import IntakeOut
 from commands.shooter_off import ShooterOff
 from commands.shooter_to_velocity import ShooterToVelocity
 from commands.track_goal import TrackGoal
+from commands.track_passing import TrackPassing
 from commands.turret_left import TurretLeft
 from commands.turret_right import TurretRight
 from commands.turret_to_position import TurretToPosition
@@ -82,7 +83,6 @@ class RobotContainer:
         self.shooter_subsystem.setDefaultCommand(
             ShooterToVelocity(self.shooter_subsystem, 3000)
         )
-        # Configure Auto Chooser
         # Configure Auto Chooser
         self.chooser = wpilib.SendableChooser()
         self.do_nothing = "Do Nothing"
@@ -159,7 +159,7 @@ class RobotContainer:
         )
         # Passing Presets
         commands2.button.JoystickButton(self.operator_controller, 13).whileTrue(
-            HoodAndTurretToPositions(self.turret_subsystem, self.vision_subsystem, -14, -180)
+            TrackPassing(self.turret_subsystem, self.vision_subsystem)
         )
         commands2.button.JoystickButton(self.operator_controller, 13).whileTrue(
             ShooterToVelocity(self.shooter_subsystem, 4000)
