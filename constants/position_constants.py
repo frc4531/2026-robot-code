@@ -2,8 +2,8 @@ class PositionConstants:
     kXTurretOffset = -0.164
     kYTurretOffset = -0.127
 
-    kInHopperExtension = 0.999
-    kOutHopperExtension = 0.209
+    kInHopperExtension = 0.82
+    kOutHopperExtension = 0.0272
     kInHopperAgitation = kInHopperExtension + 0.01
 
     kTimedAgitationIn = 1
