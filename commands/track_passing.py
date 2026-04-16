@@ -31,7 +31,7 @@ class TrackPassing(commands2.Command):
         self.close_distance = 2
         self.far_distance = 8.407 #5.2832
         self.close_encoder = -0.1
-        self.far_encoder = -17.5 #-18
+        self.far_encoder = -17 #-17.5
 
         self.angle_velocity_adjustment_controller = PIDController(0, 0, 0)
         self.distance_velocity_adjustment_controller = PIDController(0, 0, 0)
