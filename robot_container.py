@@ -164,6 +164,13 @@ class RobotContainer:
         commands2.button.JoystickButton(self.operator_controller, 13).whileTrue(
             ShooterToVelocity(self.shooter_subsystem, 4000)
         )
+        # Passing Presets Backup
+        commands2.button.JoystickButton(self.operator_controller, 12).whileTrue(
+            ShooterToVelocity(self.shooter_subsystem, 4000)
+        )
+        commands2.button.JoystickButton(self.operator_controller, 12).whileTrue(
+            HoodAndTurretToPositions(self.turret_subsystem, self.vision_subsystem, -17, -180)
+        )
 
         # -- DRIVER CONTROL BLOCK --
         # Hopper Extension Ungelation (e ur e ur)
@@ -342,7 +349,8 @@ class RobotContainer:
                 return commands2.SequentialCommandGroup(
                     commands2.ParallelDeadlineGroup(
                         WaitCommand(5),
-                        DriveToEncoderPos(self.drive_subsystem, 0.5, 0, 0, 5, 0.01)
+                        DriveToEncoderPos(self.drive_subsystem, 0, -0.5, 0, 5, 0.01),
+                        ShooterToVelocity(self.shooter_subsystem, 3000)
                     ),
                     commands2.ParallelDeadlineGroup(
                         WaitCommand(2),
@@ -368,7 +376,8 @@ class RobotContainer:
                         ),
                     commands2.ParallelDeadlineGroup(
                         WaitCommand(5),
-                        DriveToEncoderPos(self.drive_subsystem, -0.5, 0, 0, 4.5, 0.01)
+                        DriveToEncoderPos(self.drive_subsystem, 0, 0.5, 0, 4.5, 0.01),
+                        ExtensionToPosition(self.extension_subsystem, PositionConstants.kInHopperExtension),
                     ),
                     )
             case self.left_one_sweep:
